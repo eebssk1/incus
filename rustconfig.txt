@@ -1,0 +1,4 @@
+[target.'cfg(target_os="linux")']
+rustflags = [
+    "-C", "target-cpu=ivybridge", "-C", "llvm-args=--enable-knowledge-retention=true --extra-vectorizer-passes=true --enable-loop-flatten=true --enable-gvn-hoist=true --enable-constraint-elimination=true --enable-dfa-jump-thread=true --enable-partial-inlining=true --enable-unroll-and-jam=true --enable-matrix=true --enable-module-inliner=true"
+]

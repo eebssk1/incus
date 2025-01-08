@@ -1,6 +1,7 @@
 name: Builds
 on:
   push:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,36 +17,29 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - debian-11
           - debian-12
         arch:
           - amd64
-          - arm64
-        exclude:
-          - os: debian-11
-            arch: arm64
-    runs-on:
-      - self-hosted
-      - cpu-4
-      - mem-4G
-      - disk-50G
-      - arch-${{ matrix.arch }}
-      - image-${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/eebssk1/bbk/debian-bookworm:latest
+      volumes:
+        - /root:/user
+        - /mnt:/build
 
     env:
       OS_ARCH: ${{ matrix.arch }}
       OS_NAME: ${{ matrix.os }}
       HOME: "/root/"
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/"
-      CGO_LDFLAGS: "-L/opt/incus/lib/"
-      CGO_CFLAGS: "-I/opt/incus/include/"
+      CGO_LDFLAGS: "-L/opt/incus/lib/ -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
+      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
-      PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
-
+      PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+      GOAMD64: "v2"
+      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
+      LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.1"
       INCUS_TAG: "v6.8.0"
@@ -74,6 +68,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+  
+      - name: clear up
+        run: exec ./clr.sh
+
+      - name: load toolchain
+        run: curl -sL "https://github.com/eebssk1/aio_tc_build/releases/latest/download/x86_64-linux-gnu-native.tb2" | tar -C /opt --bz -x
 
       - name: Configure git
         run: |
@@ -106,10 +106,14 @@ jobs:
             libaio-dev \
             libapparmor-dev \
             libbtrfs-dev \
+            libbsd-dev \
             libcap-dev \
             libcap-ng-dev \
+            libc6-dev \
+            libc6-dev-i386 \
             libdbus-1-dev \
             libdevmapper-dev \
+            libdrm-dev \
             libelf-dev \
             libfuse3-dev \
             libglib2.0-dev \
@@ -119,6 +123,7 @@ jobs:
             libnet1-dev \
             libnl-3-dev \
             libnuma-dev \
+            libnftables-dev \
             libpam0g-dev \
             libpixman-1-dev \
             libpng-dev \
@@ -150,6 +155,8 @@ jobs:
             python3-venv \
             rsync \
             socat \
+            systemd \
+            libsystemd-dev \
             uuid-dev \
             xmlto \
             xorriso
@@ -195,7 +202,7 @@ jobs:
 
       - name: Build environment
         run: |
-          mkdir /build/
+          mkdir -p /build/
           mkdir -p \
             /opt/incus/bin/ \
             /opt/incus/include/ \
@@ -373,6 +380,8 @@ jobs:
           go build -o "/opt/incus/bin/distrobuilder" github.com/lxc/distrobuilder/distrobuilder
 
       - name: Build CRIU
+        env:
+          LDFLAGS: "-Wl,-O3 -Wl,--relax -Wl,--sort-common -Wl,--sort-section=alignment"
         run: |
           cd /build/criu
           make WERROR=0
@@ -538,6 +547,8 @@ jobs:
 
       - name: Build virtiofsd
         run: |
+          mkdir -p /build/virtiofsd/.cargo
+          cp rustconfig.txt /build/virtiofsd/.cargo/config.toml
           cd /build/virtiofsd
           cargo build --release
           cp target/release/virtiofsd /opt/incus/bin/
