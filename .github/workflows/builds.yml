@@ -33,13 +33,14 @@ jobs:
       HOME: "/root/"
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/"
       CGO_LDFLAGS: "-L/opt/incus/lib/ -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
-      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
+      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
       PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
       CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
       LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
+      LTO_FLAGS: "-flto=auto -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.1"
       INCUS_TAG: "v6.8.0"
@@ -242,6 +243,9 @@ jobs:
 
       - name: Build liburing
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/liburing
           ./configure --prefix=/opt/incus
           make
@@ -253,6 +257,9 @@ jobs:
 
       - name: Build raft
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/raft
           autoreconf -i
           ./configure --prefix=/opt/incus
@@ -265,6 +272,9 @@ jobs:
 
       - name: Build cowsql
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/cowsql
           autoreconf -i
           ./configure --prefix=/opt/incus
@@ -290,7 +300,8 @@ jobs:
                   -Dseccomp=true \
                   -Dselinux=true \
                   -Dcapabilities=true \
-                  -Dio-uring-event-loop=false
+                  -Dio-uring-event-loop=false \
+                  -Db_lto=true
           meson compile -C build
 
           mkdir -p /build/target/lxc/
@@ -310,7 +321,8 @@ jobs:
                   --prefix=/opt/incus \
                   --libdir=/opt/incus/lib \
                   -Ddocs=false \
-                  -Dtests=false
+                  -Dtests=false \
+                  -Db_lto=true
           meson compile -C build
 
           mkdir -p /build/target/lxcfs/
@@ -383,6 +395,9 @@ jobs:
         env:
           LDFLAGS: "-Wl,-O3 -Wl,--relax -Wl,--sort-common -Wl,--sort-section=alignment"
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/criu
           make WERROR=0
           cp criu/criu /opt/incus/bin/
@@ -522,6 +537,9 @@ jobs:
 
       - name: Build libtmps
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/libtpms
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-tpm2 --with-openssl
@@ -534,6 +552,9 @@ jobs:
 
       - name: Build swtpm
         run: |
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/swtpm
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-seccomp --with-openssl --without-cuse
@@ -565,6 +586,8 @@ jobs:
 
       - name: Build QEMU
         run: |
+          export AR=gcc-ar
+          export RANLIB=gcc-ranlib
           cd /build/qemu
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
           ./configure \
@@ -604,7 +627,8 @@ jobs:
                   --enable-vhost-kernel \
                   --enable-vhost-net \
                   --enable-vhost-user \
-                  --enable-virtfs
+                  --enable-virtfs \
+                  --enable-lto
           make
 
           mkdir /build/target/qemu/
