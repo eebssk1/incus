@@ -33,12 +33,12 @@ jobs:
       HOME: "/root/"
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/"
       CGO_LDFLAGS: "-L/opt/incus/lib/ -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
-      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
+      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -ftree-parallelize-loops=4 -funroll-loops -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
       PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
-      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
+      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -ftree-parallelize-loops=4 -funroll-loops -falign-labels=8:6:4 -falign-functions=24 -falign-jumps=16:13:8 -falign-loops=16:13:8 -fmin-function-alignment=8 -flimit-function-alignment"
       LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       LTO_FLAGS: "-flto=auto -ffat-lto-objects"
       # Linux Containers projects
@@ -247,7 +247,7 @@ jobs:
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/liburing
-          ./configure --prefix=/opt/incus
+          ./configure --prefix=/opt/incus --use-libc
           make
 
           mkdir -p /build/target/liburing/
@@ -395,7 +395,7 @@ jobs:
         env:
           LDFLAGS: "-Wl,-O3 -Wl,--relax -Wl,--sort-common -Wl,--sort-section=alignment"
         run: |
-          export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export CFLAGS="$CFLAGS -ftree-parallelize-loops=0 $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/criu
@@ -628,7 +628,8 @@ jobs:
                   --enable-vhost-net \
                   --enable-vhost-user \
                   --enable-virtfs \
-                  --enable-lto
+                  --enable-lto \
+                  -Doptimization=3
           make
 
           mkdir /build/target/qemu/
