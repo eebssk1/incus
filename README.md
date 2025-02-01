@@ -1,3 +1,6 @@
+No release are planned for personal build.
+Pls check github actions artifacts instead.
+
 # Incus builds
 
 Incus package builds provided by Zabbly.
