@@ -44,4 +44,3 @@ index 1523a06d..ed43be8e 100644
  	}
  
  	err = api.AddDeviceRules(C.GoString(cgroupPath), rules)
-
