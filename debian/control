@@ -51,7 +51,7 @@ Depends: ${misc:Depends},
   libbtrfs0 | libbtrfs0t64,
   libcap2,
   libdevmapper1.02.1,
-  libfuse3-3,
+  libfuse3-3 | libfuse3-4,
   libgcc-s1,
   libgnutls30,
   libgpgme11 | libgpgme11t64,
@@ -116,8 +116,13 @@ Pre-Depends: ${misc:Pre-Depends}
 Breaks: incus (<< ${source:Version})
 Replaces: incus (<< ${source:Version})
 Recommends:
+  debootstrap,
+  gdisk,
+  genisoimage,
   incus,
-  rsync
+  libwin-hivex-perl,
+  rsync,
+  wimtools
 Description: Incus - Extra tools
  Incus provides the ability to run containers and virtual machines locally
  along with very flexible networking and storage akin to what's offered

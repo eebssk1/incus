@@ -43,16 +43,17 @@ jobs:
       LTO_FLAGS: "-flto=auto -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.1"
-      INCUS_TAG: "v6.10.1"
-      INCUS_UI_CANONICAL_TAG: "incus-0.15.0"
+      INCUS_TAG: "v6.11.0"
+      INCUS_UI_CANONICAL_TAG: "incus-0.15.1"
       LXCFS_TAG: "v6.0.3"
       LXC_TAG: "v6.0.3"
 
       # External dependencies
       COWSQL_TAG: "v1.15.8"
-      CRIU_TAG: "v4.0"
+      CRIU_TAG: "v4.1"
       EDK2_TAG: "edk2-stable202411"
       GOLANG_TAG: "go1.24.1"
+      LEGO_TAG: "v4.22.2"
       LIBTPMS_TAG: "v0.10.0"
       LIBURING_TAG: "liburing-2.9"
       MINIO_MC_TAG: "RELEASE.2025-03-12T17-29-24Z"
@@ -230,6 +231,7 @@ jobs:
           git clone https://github.com/containers/skopeo /build/skopeo --depth 1 -b "${SKOPEO_TAG}"
           git clone https://github.com/cowsql/cowsql /build/cowsql --depth 1 -b "${COWSQL_TAG}"
           git clone https://github.com/cowsql/raft /build/raft --depth 1 -b "${RAFT_TAG}"
+          git clone https://github.com/go-acme/lego /build/lego --depth 1 -b "${LEGO_TAG}"
           git clone https://github.com/minio/mc /build/mc --depth 1 -b "${MINIO_MC_TAG}"
           git clone https://github.com/minio/minio /build/minio --depth 1 -b "${MINIO_TAG}"
           git clone https://github.com/NVIDIA/libnvidia-container /build/libnvidia-container --depth 1 -b "${NVIDIA_CONTAINER_TAG}"
@@ -343,39 +345,11 @@ jobs:
 
           cd /build/incus
 
-          git cherry-pick 4b88ca4ac1013ae540e6e2d16eac75a2d968ec64  # incusd/device/disk: Do not allow mounting of custom block volume snapshots
-          git cherry-pick f7258c12a3b46ac89798a4f9547ae0812c503875  # incusd/storage: Don't use sparse writer on thick LVM
-          git cherry-pick 186dc6ed67ef1e14d11849897677be1ee1db8e12  # incusd/ip: Error message styling
-          git cherry-pick cb1db1fd0eedadb778e309850c3e8bc84d574282  # incusd/ip: Only parse MAC on ethernet links
-          git cherry-pick 3346a075a63965827f724a77f0688713a0e361aa  # incusd/network/ovn: Fallback to OVN router address as DNS server
-          git cherry-pick cd5e6190c722069de8b05eb41b4912381e6ac192  # incusd/instance: Revert on OCI creation failure
-          git cherry-pick ee12c8125852f9fc898fc717ee5084326d90db0a  # incus/drivers: Fix ZFS CreateVolume deletes pre-existing data on failure
-          git cherry-pick 5fe94fab824c5ba9622109a6272e6ad4ab093145  # incus/rebuild: Correct help message
-          git cherry-pick 6d0b6fa6538561b975a1dfcb3163060022a83083  # incus/file: Always use 1MB chunks for SFTP
-          git cherry-pick fc9a2b59bcaa340000a0aeb839eb6fd36c954de9  # incusd/instance/lxc: Fail immediately if no idmap found
-          git cherry-pick 6a0d0137735c260b5872e27c7d94720e8d989228  # incusd/bgp: Rework start/stop logic
-          git cherry-pick 5ce9370179049ca6dbd13222d1d0eb0d12e43fb3  # incusd/network/ovn: Skip existing static routes
-          git cherry-pick d42a2e62365b6464c90fb6ced2b38cf6a1f6fad2  # incusd/instance/qemu: Set caching-mode with intel-iommu
-          git cherry-pick ecca1401244f8cc5018886e7be3e6bbfa16c7289  # incus-agent: Improve SFTP performance
-          git cherry-pick 727bdc4667778e0ca448cac485909f505ba15551  # incusd/instance/qemu: Move Windows check to a function
-          git cherry-pick 387d0536639549c8c4e944488b20b2f28e36eb33  # incusd/instance/qemu: Set RTC base to localtime on Windows
-          git cherry-pick 64a223670d68441371bebb0836ef89ef7c298513  # incus/copy: Clear full device when overriding with type=none
-          git cherry-pick 965d42b3be74443999698e45d8e14d0d31c2046c  # incusd/dns: Use shared mutex
-          git cherry-pick 81d243b03629785b61cecff379cbccfff0910fe6  # incusd/network/ovn: Correctly remove individual DHCP options from OVN when they are unset
-          git cherry-pick e65c7871145b29cf78dbdcbffea753f3a3e34c25  # incusd/instance/qmp: Add MachineDefinition function
-          git cherry-pick 98f46c422c98488a0ecdaf2f1d21ab6898d962cc  # internal/instance: Add volatile.vm.definition
-          git cherry-pick 2a9a0fd3244c6d33aa992f995dfa10f9aac9c8c1  # incusd/instance/qemu: Use saved machine definition when restoring running VM
-          git cherry-pick 76bf08bdf492cfd3991b46c8627b1ebb00689658  # incusd/instance/qemu: Handle firmware vars name matching internal one
-          git cherry-pick 130b475947bb5ceaf174a6f9d44f176607a9968b  # incusd/network/ovn: Don't run bgpSetup twice
-          git cherry-pick a798f4fa661c9b477eb73a7878ab811e596b53e4  # incusd/network/physical: Do full start following change of parent
-          git cherry-pick 35943f8baba68c5639c3420804ce88909daa2e63  # incusd/instance/common: Check PID validity
-          git cherry-pick 7fa00dc90e986ec51179292074287725f9b88541  # incus/file: Properly handle relative source paths
-          git cherry-pick 53841ea1a45129308b6346efb18f024c2a32c161  # incusd/events: Don't open needless transactions
-          git cherry-pick 60d3c9a0bc0f571fda0ea29301076c5d0b1189c7  # incusd/instances: Re-order evacuated check to limit DB calls
-          git cherry-pick 20cdfc75598356a2b5614fa0131e8f9fcc3632ad  # incusd: Limit calls to LocalNodeIsEvacuated
-          git cherry-pick 1ddba88b0768f48f653d54a21a0dc0106f5e23d8  # incusd/instances_post: Move non-DB logic outside of transaction
-          git cherry-pick 73f5867e6283f59af4e0a4c9a3668c6db499e89c  # incusd/network/common: Handle missing BGP peer
-          git cherry-pick a3733250418f90d1157a5e234a9fe1b19f323924  # incusd/cluster/evacuate: Don't live-migrate stopped instances
+          git cherry-pick e7f29433b891791a45f6737c0603687ca1ca9282  # doc: Fix missing OCI section
+          git cherry-pick 3d3c356940ad3b7edb341624074eb3a8344d0dac  # internal/instance: Tweak wording
+          git cherry-pick cadb2018b67eb96d488b7189628244609572c2d4  # doc: Update config
+          git cherry-pick 362844821b400c80bdab2299397e3d582370a98c  # doc: Fix config option reference on LINSTOR driver
+          git cherry-pick 8ceb6f89d74028a05bca3f1e2d2a9b0ffde65a91  # incusd/instance/lxc: Fix max gid when in a privileged container
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
@@ -612,6 +586,11 @@ jobs:
           cargo build --release
           cp target/release/virtiofsd /opt/incus/bin/
 
+      - name: Build lego
+        run: |
+          cd /build/lego
+          go build -o "/opt/incus/bin/lego" github.com/go-acme/lego/v4/cmd/lego
+
       - name: Build umoci
         run: |
           cd /build/umoci
@@ -624,9 +603,13 @@ jobs:
 
       - name: Build QEMU
         run: |
+          REPO="${PWD}"
+
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/qemu
+          patch -p1 < "${REPO}/patches/qemu-0001-usb-net-mac.patch"
+
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
           ./configure \
                   --prefix=/opt/incus \
@@ -636,6 +619,7 @@ jobs:
                   --disable-cloop \
                   --disable-dmg \
                   --disable-docs  \
+                  --disable-fuse  \
                   --disable-guest-agent \
                   --disable-parallels \
                   --disable-qed \
