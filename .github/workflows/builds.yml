@@ -18,11 +18,17 @@ jobs:
       matrix:
         os:
           - debian-12
+          - debian-13
         arch:
           - amd64
+        include:
+          - img: ghcr.io/eebssk1/bbk/debian-bookworm:latest
+            os: debian-12
+          - img: ghcr.io/eebssk1/debian-trixie:latest
+            os: debian-13
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/eebssk1/bbk/debian-bookworm:latest
+      image: ${{ matrix.img }}
       volumes:
         - /root:/user
         - /mnt:/build
