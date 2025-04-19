@@ -44,7 +44,7 @@ jobs:
       CPATH: "/opt/incus/include/"
       PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
-      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -ftree-parallelize-loops=4 -funroll-loops -falign-functions=24 -fmin-function-alignment=8 -flimit-function-alignment"
+      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -Wno-error -ftree-parallelize-loops=4 -funroll-loops -falign-functions=24 -fmin-function-alignment=8 -flimit-function-alignment -Wno-error"
       LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       LTO_FLAGS: "-flto=auto -ffat-lto-objects"
       # Linux Containers projects
@@ -616,6 +616,7 @@ jobs:
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/libtpms
+          sed -i "s/-Wall -Werror -Wshadow/-Wall -Wshadow/g" configure.ac
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-tpm2 --with-openssl
           make
