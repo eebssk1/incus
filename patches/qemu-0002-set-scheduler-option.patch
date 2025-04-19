@@ -1,0 +1,101 @@
+From 7d638455b614bd7a77f2a23539058573c62c6162 Mon Sep 17 00:00:00 2001
+From: EBK21 <chkd13303@gmail.com>
+Date: Sat, 19 Apr 2025 02:34:32 +0000
+Subject: [PATCH] set scheduler option
+
+---
+ include/qemu/option.h |  5 +++++
+ qemu-options.hx       | 23 +++++++++++++++++++++++
+ system/vl.c           | 25 +++++++++++++++++++++++++
+ 3 files changed, 53 insertions(+)
+
+diff --git a/include/qemu/option.h b/include/qemu/option.h
+index b349828782..03b4a32522 100644
+--- a/include/qemu/option.h
++++ b/include/qemu/option.h
+@@ -28,6 +28,11 @@
+ 
+ #include "qemu/queue.h"
+ 
++#if defined(CONFIG_LINUX)
++#include <sys/resource.h>
++#include <sched.h>
++#endif
++
+ /**
+  * get_opt_value
+  * @p: a pointer to the option name, delimited by commas
+diff --git a/qemu-options.hx b/qemu-options.hx
+index 8ce85d4559..498b8c1e60 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -5863,6 +5863,29 @@ SRST
+             (qemu) qom-set /objects/iothread1 poll-max-ns 100000
+ ERST
+ 
++DEF("sched_batch", 0, QEMU_OPTION_sched_batch,
++#ifdef CONFIG_LINUX
++    "-sched_batch      set scheduler class to batch.\n"
++#else
++    "-sched_batch      Not implemented.\n"
++#endif
++, QEMU_ARCH_ALL)
++
++DEF("sched_idle", 0, QEMU_OPTION_sched_idle,
++#ifdef CONFIG_LINUX
++    "-sched_idle      set scheduler class to idle.\n"
++#else
++    "-sched_idle      Not implemented.\n"
++#endif
++, QEMU_ARCH_ALL)
++
++DEF("set_nice", HAS_ARG, QEMU_OPTION_set_nice,
++#ifdef CONFIG_LINUX
++    "-set_nice [nice]      set nice value to [nice].\n"
++#else
++    "-set_nice [nice]      Not implemented.\n"
++#endif
++, QEMU_ARCH_ALL)
+ 
+ HXCOMM This is the last statement. Insert new options before this line!
+ 
+diff --git a/system/vl.c b/system/vl.c
+index c644222982..01df21527e 100644
+--- a/system/vl.c
++++ b/system/vl.c
+@@ -3612,7 +3612,32 @@ void qemu_init(int argc, char **argv)
+                 break;
+             }
+ #endif /* CONFIG_POSIX */
++            case QEMU_OPTION_sched_batch: {
++#if defined(CONFIG_LINUX)
++                struct sched_param p0 = { 0 };
++                if(sched_setscheduler(0, SCHED_BATCH, &p0))
++                    printf("Failed to set scheduler class !");
++#endif
++                break;
++            }
++
++            case QEMU_OPTION_sched_idle: {
++#if defined(CONFIG_LINUX)
++                struct sched_param p0 = { 0 };
++                if(sched_setscheduler(0, SCHED_IDLE, &p0))
++                    printf("Failed to set scheduler class !");
++#endif
++                break;
++            }
+ 
++            case QEMU_OPTION_set_nice:
++#if defined(CONFIG_LINUX)
++                int num = atoi(optarg);
++                if ((num !=0 && num >= -20 && num <= 19) ? false : true) break;
++                if(setpriority(PRIO_PROCESS, 0, num))
++                    printf("Failed to set priority !");
++#endif
++                break;
+             default:
+                 error_report("Option not supported in this build");
+                 exit(1);
+-- 
+2.49.0
+

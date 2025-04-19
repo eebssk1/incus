@@ -666,6 +666,7 @@ jobs:
           export RANLIB=gcc-ranlib
           cd /build/qemu
           patch -p1 < "${REPO}/patches/qemu-0001-usb-net-mac.patch"
+          patch -p1 < "${REPO}/patches/qemu-0002-set-scheduler-option.patch"
 
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
           ./configure \
