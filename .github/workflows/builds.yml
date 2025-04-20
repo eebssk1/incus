@@ -414,6 +414,7 @@ jobs:
           git cherry-pick 7f789f125e884bcd6114dbe2df6c752ca4a79ea3  # incusd/instance: Pre-fetch snapshot data in RenderFull
           git cherry-pick 26b3971936bb9208997c76dbfcb4ea74b7aa0be8  # incusd/instances_post: Properly handle refresh migrations
           git cherry-pick 45b9c1df808ba865a4675b38e465447ee7045c37  # incusd/storage/zfs: Rework ZFS setting enforcement
+          git cherry-pick 1343b960e6e4cdff854b1776f7685191dde978c5  # do not require stateful migrate flag when stateful shutdown/startup
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
