@@ -127,6 +127,7 @@ jobs:
             libglib2.0-dev \
             libgnutls28-dev \
             libgpgme-dev \
+            libjpeg62-turbo-dev \
             libjson-glib-dev \
             libnet1-dev \
             libnl-3-dev \
@@ -691,7 +692,8 @@ jobs:
                   --disable-slirp \
                   --disable-user \
                   --disable-vdi \
-                  --disable-vnc \
+                  --enable-vnc \
+                  --enable-vnc-jpeg \
                   --disable-xen \
                   --disable-install-blobs \
                   --enable-attr \
