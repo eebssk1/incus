@@ -396,7 +396,7 @@ jobs:
           git cherry-pick 983550b494abc03ec49d47e716518b0eb7574571  # incusd: Don't export internal migration struct functions
           git cherry-pick cd1b9f2ad061e0fe12c22a64ff040f29e35168b4  # incusd: Fix import shadowing
           git cherry-pick a0cbf878b0ea083682c7dae1d66bc1b826f83218  # incusd/instance/drivers: Rewrite config entries as maps
-          git cherry-pick b268f4d7f2597be601fb102bd1ce6bc997e622ef  # incusd/scriptlet/qemu: Remove legacy wrapper
+          git cherry-pick 94b3e1299724c6db2f3359d0a17970742aebacaa  # incusd/scriptlet/qemu: Remove legacy wrapper
           git cherry-pick 5d6defba1c216ecf8c991ce7830c1b15bcd42710  # incusd/instance/drivers: Fix tests
           git cherry-pick c321125cc1dafa159a598f0423b3c448f5273c04  # incusd/instance/drivers: Use fmt.Fprintf
           git cherry-pick e9e8ed6ddab8ad9e16ecfce4a79ba21525f50ba2  # incusd/firewall/nftables: Fix handling of address set deletion
