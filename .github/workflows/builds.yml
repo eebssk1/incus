@@ -39,14 +39,15 @@ jobs:
       HOME: "/root/"
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/"
       CGO_LDFLAGS: "-L/opt/incus/lib/ -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
-      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
+      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -mtune=broadwell -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
       PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
-      CFLAGS: "-O3 -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
+      CFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
+      CXXFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
       LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
-      LTO_FLAGS: "-flto=auto -ffat-lto-objects"
+      LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
       INCUS_TAG: "v6.13.0"
@@ -169,7 +170,8 @@ jobs:
             libsystemd-dev \
             uuid-dev \
             xmlto \
-            xorriso
+            xorriso \
+            qemu-system-x86
 
           apt-get install --no-install-recommends --yes systemd-dev || true
 
@@ -301,6 +303,8 @@ jobs:
         run: |
           cd /build/lxc
 
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
+
           git cherry-pick 2663712e8fa8f37e0bb873185e2d4526dc644764  # start: Re-introduce first SET_DUMPABLE call
 
           meson setup build \
@@ -330,6 +334,8 @@ jobs:
       - name: Build LXCFS
         run: |
           REPO="${PWD}"
+
+          export CFLAGS="$CFLAGS $LTO_FLAGS"
 
           cd /build/lxcfs
           meson setup build \
@@ -609,6 +615,8 @@ jobs:
         run: |
           REPO="${PWD}"
 
+          export CFLAGS="$CFLAGS $LTO_FLAGS -Wno-error"
+
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/qemu
@@ -680,6 +688,10 @@ jobs:
           if [ "$(uname -m)" = "aarch64" ]; then
             FIRMWARE="AAVMF"
           fi
+
+          unset LD_LIBRARY_PATH
+          export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          hash -r || true
 
           cd "${REPO}/edk2-vars-generator"
           ./edk2-vars-generator -f "${FIRMWARE}" \
