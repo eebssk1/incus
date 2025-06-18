@@ -1,0 +1,11 @@
+--- a/meson_options.txt	2025-06-18 01:59:25.549540001 +0000
++++ b/meson_options.txt	2025-06-18 02:00:24.597535806 +0000
+@@ -66,7 +66,7 @@
+ 
+ option('malloc_trim', type : 'feature', value : 'auto',
+        description: 'enable libc malloc_trim() for memory optimization')
+-option('malloc', type : 'combo', choices : ['system', 'tcmalloc', 'jemalloc'],
++option('malloc', type : 'combo', choices : ['system', 'tcmalloc', 'jemalloc', 'mimalloc'],
+        value: 'system', description: 'choose memory allocator to use')
+ 
+ option('kvm', type: 'feature', value: 'auto',

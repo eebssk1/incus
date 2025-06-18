@@ -37,8 +37,8 @@ jobs:
       OS_ARCH: ${{ matrix.arch }}
       OS_NAME: ${{ matrix.os }}
       HOME: "/root/"
-      PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/"
-      CGO_LDFLAGS: "-L/opt/incus/lib/ -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
+      PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/:/tmp/mylibs"
+      CGO_LDFLAGS: "-L/opt/incus/lib/ -L/tmp/mylibs -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       CGO_CFLAGS: "-I/opt/incus/include/ -O3 -mtune=broadwell -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
@@ -46,7 +46,7 @@ jobs:
       GOAMD64: "v2"
       CFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
       CXXFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -fgcse-las -falign-labels=8:7:4 -falign-functions=24:18 -fmin-function-alignment=16"
-      LDFLAGS: "-Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
+      LDFLAGS: "-L/tmp/mylibs -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
@@ -223,6 +223,7 @@ jobs:
             /opt/incus/lib/ \
             /opt/incus/lib/systemd/system/ \
             /opt/incus/share/
+          mv $PWD/mylibs /tmp
 
       - name: Get the code
         run: |
@@ -636,6 +637,7 @@ jobs:
           cd /build/qemu
           patch -p1 < "${REPO}/patches/qemu-0001-usb-net-mac.patch"
           patch -p1 < "${REPO}/patches/qemu-0002-set-scheduler-option.patch"
+          patch -p1 < "${REPO}/patches/qemu-0003-malloc.patch"
 
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
           ./configure \
@@ -679,6 +681,7 @@ jobs:
                   --enable-vhost-user \
                   --enable-virtfs \
                   --enable-lto \
+                  --enable-malloc=mimalloc \
                   -Doptimization=3
           make
 
