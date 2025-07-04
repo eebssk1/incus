@@ -9,3 +9,15 @@
         value: 'system', description: 'choose memory allocator to use')
  
  option('kvm', type: 'feature', value: 'auto',
+
+--- a/meson.build        2025-07-04 16:28:58.687674021 +0000
++++ b/meson.build 2025-07-04 16:29:28.469901078 +0000
+@@ -2175,7 +2175,7 @@
+     cc.has_function('malloc_trim', prefix: '#include <malloc.h>')
+ else
+   has_malloc_trim = false
+-  malloc = cc.find_library(get_option('malloc'), required: true)
++  malloc = dependency(get_option('malloc'), required: true, method: 'pkg-config')
+ endif
+ if not has_malloc_trim and get_option('malloc_trim').enabled()
+   if get_option('malloc') == 'system'
