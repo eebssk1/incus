@@ -58,7 +58,7 @@ jobs:
       # External dependencies
       COWSQL_TAG: "v1.15.8"
       CRIU_TAG: "v4.1"
-      EDK2_TAG: "edk2-stable202505"
+      EDK2_TAG: "edk2-stable202411"
       GOLANG_TAG: "go1.24.4"
       LEGO_TAG: "v4.23.1"
       LIBTPMS_TAG: "v0.10.1"
@@ -178,23 +178,6 @@ jobs:
           pip3 install meson || pip3 install meson --break-system-packages
           pip3 install tomli || pip3 install tomli --break-system-packages
 
-      - name: Install backported debhelper (on focal)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        run: |
-          if [ "${OS_ARCH}" = "amd64" ]; then
-              echo "deb http://archive.ubuntu.com/ubuntu focal-backports main restricted universe multiverse" >> /etc/apt/sources.list
-          else
-              echo "deb http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" >> /etc/apt/sources.list
-          fi
-          apt-get install -t focal-backports debhelper --yes
-
-      - name: Install backported git (on focal)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        run: |
-          apt-get install software-properties-common --yes
-          add-apt-repository ppa:git-core/ppa --yes
-          apt-get install git --yes
-
       - name: Install Go
         run: |
           curl -sL "https://go.dev/dl/${GOLANG_TAG}.linux-${OS_ARCH}.tar.gz" | tar -C /usr/local/ -zx
@@ -227,9 +210,6 @@ jobs:
 
       - name: Get the code
         run: |
-          # Ubuntu 20.04 is no longer supported by recent QEMU.
-          [ "${OS_NAME}" = "ubuntu-20.04" ] && QEMU_TAG="v9.0.2"
-
           git clone https://github.com/lxc/distrobuilder /build/distrobuilder --depth 1 -b "${DISTROBUILDER_TAG}"
           git clone https://github.com/lxc/lxc /build/lxc -b "${LXC_TAG}"
           git clone https://github.com/lxc/lxcfs /build/lxcfs --depth 1 -b "${LXCFS_TAG}"
@@ -366,6 +346,9 @@ jobs:
           REPO="${PWD}"
 
           cd /build/incus
+
+          git cherry-pick 577c86e70190c3ecfad307348976893731a8ac0f  # incusd/instance/qemu: On standalone systems, cap hotplug memory to system
+          git cherry-pick ea2edebc7a6ba76e7f5858d29f1730d3d9537c89  # incusd/patches: Fix empty JSON columns
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
@@ -749,7 +732,6 @@ jobs:
           [ "${PKGOS}" = "debian-11" ] && CODENAME=bullseye
           [ "${PKGOS}" = "debian-12" ] && CODENAME=bookworm
           [ "${PKGOS}" = "debian-13" ] && CODENAME=trixie
-          [ "${PKGOS}" = "ubuntu-20.04" ] && CODENAME=focal
           [ "${PKGOS}" = "ubuntu-22.04" ] && CODENAME=jammy
           [ "${PKGOS}" = "ubuntu-24.04" ] && CODENAME=noble
 
