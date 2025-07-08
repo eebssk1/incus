@@ -242,7 +242,7 @@ jobs:
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/liburing
-          ./configure --prefix=/opt/incus --use-libc
+          ./configure --prefix=/opt/incus
           make
 
           mkdir -p /build/target/liburing/
