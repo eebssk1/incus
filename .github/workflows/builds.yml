@@ -617,6 +617,8 @@ jobs:
           patch -p1 < "${REPO}/patches/qemu-0003-malloc.patch"
           patch -p1 < "${REPO}/patches/qemu-0004-hardening-change.patch"
 
+          sed -i "/subdir('tests')/d" meson.build
+          
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
           ./configure \
                   --prefix=/opt/incus \
