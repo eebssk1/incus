@@ -662,7 +662,7 @@ jobs:
                   --enable-virtfs \
                   --enable-lto \
                   --enable-malloc=mimalloc \
-                  --x86-version=2 \
+                  -Davx2=enabled \
                   -Dmembarrier=enabled \
                   -Doptimization=3
           make
