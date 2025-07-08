@@ -1,0 +1,24 @@
+--- a/meson.build        2025-07-04 16:28:58.687674021 +0000
++++ b/meson.build 2025-07-08 15:36:09.550880440 +0000
+@@ -485,7 +485,7 @@
+       return 0;
+     }'''
+   have_stack_protector = false
+-  foreach arg : ['-fstack-protector-strong', '-fstack-protector-all']
++  foreach arg : ['-fstack-protector']
+     # We need to check both a compile and a link, since some compiler
+     # setups fail only on a .c->.o compile and some only at link time
+     if cc.compiles(stack_protector_probe, args: ['-Werror', arg]) and \
+@@ -704,9 +704,9 @@
+ # https://gitlab.com/qemu-project/qemu/-/issues/2278
+ if host_os != 'openbsd' and \
+    cc.compiles('extern struct { void (*cb)(void); } s; void f(void) { s.cb(); }',
+-               name: '-fzero-call-used-regs=used-gpr',
+-               args: ['-O2', '-fzero-call-used-regs=used-gpr'])
+-    hardening_flags += '-fzero-call-used-regs=used-gpr'
++               name: '-fzero-call-used-regs=used-gpr-arg',
++               args: ['-O2', '-fzero-call-used-regs=used-gpr-arg'])
++    hardening_flags += '-fzero-call-used-regs=used-gpr-arg'
+ endif
+
+ qemu_common_flags += cc.get_supported_arguments(hardening_flags)
