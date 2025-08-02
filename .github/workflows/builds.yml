@@ -50,14 +50,14 @@ jobs:
       LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_TAG: "v6.14.0"
+      INCUS_TAG: "v6.15.0"
       INCUS_UI_CANONICAL_TAG: "incus-0.18.0"
       LXCFS_TAG: "v6.0.4"
       LXC_TAG: "v6.0.4"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
-      CRIU_TAG: "v4.1"
+      CRIU_TAG: "v4.1.1"
       EDK2_TAG: "edk2-stable202411"
       GOLANG_TAG: "go1.24.5"
       LEGO_TAG: "v4.25.1"
@@ -346,8 +346,6 @@ jobs:
           REPO="${PWD}"
 
           cd /build/incus
-
-          git checkout 5baa23d
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
