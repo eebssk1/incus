@@ -52,14 +52,14 @@ jobs:
       DISTROBUILDER_TAG: "distrobuilder-3.2"
       INCUS_TAG: "v6.15.0"
       INCUS_UI_CANONICAL_TAG: "incus-0.18.0"
-      LXCFS_TAG: "v6.0.4"
-      LXC_TAG: "v6.0.4"
+      LXCFS_TAG: "v6.0.5"
+      LXC_TAG: "v6.0.5"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
       CRIU_TAG: "v4.1.1"
       EDK2_TAG: "edk2-stable202411"
-      GOLANG_TAG: "go1.24.6"
+      GOLANG_TAG: "go1.25.0"
       LEGO_TAG: "v4.25.2"
       LIBTPMS_TAG: "v0.10.1"
       LIBURING_TAG: "liburing-2.11"
@@ -72,7 +72,6 @@ jobs:
       SEABIOS_TAG: "rel-1.17.0"
       SKOPEO_TAG: "v1.20.0"
       SWTPM_TAG: "v0.10.1"
-      UMOCI_TAG: "v0.5.0"
       VIRTIOFSD_TAG: "v1.13.2"
     steps:
       - name: Checkout code
@@ -225,7 +224,6 @@ jobs:
           git clone https://github.com/minio/mc /build/mc --depth 1 -b "${MINIO_MC_TAG}"
           git clone https://github.com/minio/minio /build/minio --depth 1 -b "${MINIO_TAG}"
           git clone https://github.com/NVIDIA/libnvidia-container /build/libnvidia-container --depth 1 -b "${NVIDIA_CONTAINER_TAG}"
-          git clone https://github.com/opencontainers/umoci /build/umoci --depth 1 -b "${UMOCI_TAG}"
           git clone https://github.com/stefanberger/libtpms /build/libtpms --depth 1 -b "${LIBTPMS_TAG}"
           git clone https://github.com/stefanberger/swtpm /build/swtpm --depth 1 -b "${SWTPM_TAG}"
           git clone https://github.com/tianocore/edk2 /build/edk2 --recurse-submodules --shallow-submodules --depth 1 -b "${EDK2_TAG}"
@@ -288,11 +286,6 @@ jobs:
 
           export CFLAGS="$CFLAGS $LTO_FLAGS"
 
-          git cherry-pick 2663712e8fa8f37e0bb873185e2d4526dc644764  # start: Re-introduce first SET_DUMPABLE call
-
-          patch -p1 < "${REPO}/patches/lxc-0001-flag-kind-mounts.patch"
-          patch -p1 < "${REPO}/patches/lxc-0002-flag-move.patch"
-
           meson setup build \
                   --prefix=/opt/incus \
                   --libdir=/opt/incus/lib \
@@ -347,7 +340,7 @@ jobs:
 
           cd /build/incus
 
-          git checkout 539c2cec3ab4be6b85c1a3c0cb74dbce900e23f8
+          git checkout ebf5282ff77adc31e7e734cd5d326166cc4a4727
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
@@ -592,11 +585,6 @@ jobs:
         run: |
           cd /build/lego
           go build -o "/opt/incus/bin/lego" github.com/go-acme/lego/v4/cmd/lego
-
-      - name: Build umoci
-        run: |
-          cd /build/umoci
-          go build -o "/opt/incus/bin/umoci" github.com/opencontainers/umoci/cmd/umoci
 
       - name: Build skopeo
         run: |
