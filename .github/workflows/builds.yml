@@ -50,8 +50,8 @@ jobs:
       LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_TAG: "v6.15.0"
-      INCUS_UI_CANONICAL_TAG: "incus-0.18.0"
+      INCUS_TAG: "v6.16.0"
+      INCUS_UI_CANONICAL_TAG: "incus-0.18.1"
       LXCFS_TAG: "v6.0.5"
       LXC_TAG: "v6.0.5"
 
@@ -62,7 +62,7 @@ jobs:
       GOLANG_TAG: "go1.25.0"
       LEGO_TAG: "v4.25.2"
       LIBTPMS_TAG: "v0.10.1"
-      LIBURING_TAG: "liburing-2.11"
+      LIBURING_TAG: "liburing-2.12"
       MINIO_MC_TAG: "RELEASE.2025-07-21T05-28-08Z"
       MINIO_TAG: "RELEASE.2025-07-23T15-54-02Z"
       NASM_TAG: "nasm-2.16.03"
@@ -72,6 +72,7 @@ jobs:
       SEABIOS_TAG: "rel-1.17.0"
       SKOPEO_TAG: "v1.20.0"
       SWTPM_TAG: "v0.10.1"
+      TRUENAS_INCUS_CTL_TAG: "v0.7.3"
       VIRTIOFSD_TAG: "v1.13.2"
     steps:
       - name: Checkout code
@@ -227,6 +228,7 @@ jobs:
           git clone https://github.com/stefanberger/libtpms /build/libtpms --depth 1 -b "${LIBTPMS_TAG}"
           git clone https://github.com/stefanberger/swtpm /build/swtpm --depth 1 -b "${SWTPM_TAG}"
           git clone https://github.com/tianocore/edk2 /build/edk2 --recurse-submodules --shallow-submodules --depth 1 -b "${EDK2_TAG}"
+          git clone https://github.com/truenas/truenas_incus_ctl /build/truenas_incus_ctl --depth 1 -b "${TRUENAS_INCUS_CTL_TAG}"
           git clone https://gitlab.com/qemu-project/qemu /build/qemu --depth 1 -b "${QEMU_TAG}"
           git clone https://gitlab.com/qemu-project/seabios /build/seabios --depth 1 -b "${SEABIOS_TAG}"
           git clone https://gitlab.com/virtio-fs/virtiofsd /build/virtiofsd --depth 1 -b "${VIRTIOFSD_TAG}"
@@ -339,8 +341,6 @@ jobs:
           REPO="${PWD}"
 
           cd /build/incus
-
-          git checkout ebf5282ff77adc31e7e734cd5d326166cc4a4727
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
@@ -590,6 +590,11 @@ jobs:
         run: |
           cd /build/skopeo
           go build -o "/opt/incus/bin/skopeo" github.com/containers/skopeo/cmd/skopeo
+
+      - name: Build TrueNAS Incus CTL
+        run: |
+          cd /build/truenas_incus_ctl
+          go build -o "/opt/incus/bin/truenas_incus_ctl" truenas/truenas_incus_ctl
 
       - name: Build QEMU
         run: |
