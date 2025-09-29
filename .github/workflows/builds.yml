@@ -50,17 +50,17 @@ jobs:
       LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_TAG: "v6.16.0"
-      INCUS_UI_CANONICAL_TAG: "incus-0.18.1"
+      INCUS_TAG: "v6.17.0"
+      INCUS_UI_CANONICAL_TAG: "incus-0.18.2"
       LXCFS_TAG: "v6.0.5"
       LXC_TAG: "v6.0.5"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
       CRIU_TAG: "v4.1.1"
-      EDK2_TAG: "edk2-stable202411"
+      EDK2_TAG: "edk2-stable202508"
       GOLANG_TAG: "go1.25.1"
-      LEGO_TAG: "v4.25.2"
+      LEGO_TAG: "v4.26.0"
       LIBTPMS_TAG: "v0.10.1"
       LIBURING_TAG: "liburing-2.12"
       MINIO_MC_TAG: "RELEASE.2025-08-13T08-35-41Z"
@@ -342,8 +342,6 @@ jobs:
 
           cd /build/incus
 
-          git checkout 0020f35fcabd1be8cc9a993b7f607b7cf2eb6159
-
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
           go build -o "/opt/incus/bin/incus-benchmark" github.com/lxc/incus/v6/cmd/incus-benchmark
@@ -488,7 +486,8 @@ jobs:
           patch -p1 < "${REPO}/patches/edk2-0005-Revert-ArmVirtPkg-make-EFI_LOADER_DATA-non-executabl.patch"
           patch -p1 < "${REPO}/patches/edk2-0006-disable-EFI-memory-attributes-protocol.patch"
           patch -p1 < "${REPO}/patches/edk2-0007-EnrollDefaultKeys-Add-new-Microsoft-KEK-DB.patch"
-          patch -p1 < "${REPO}/patches/edk2-0008-disable-UEFI-shell-under-SecureBoot.patch"
+          patch -p1 < "${REPO}/patches/edk2-0008-OvmfPkg-X64-add-opt-org-tianocore-UninstallMemAttrProtocol-support.patch"
+          patch -p1 < "${REPO}/patches/edk2-0009-disable-UEFI-shell-under-SecureBoot.patch"
 
           EDK2_ARCH="X64"
           EDK2_PKG="OvmfPkg/OvmfPkgX64.dsc"
@@ -521,6 +520,7 @@ jobs:
                     -DNETWORK_HTTP_BOOT_ENABLE=TRUE \
                     -DTPM2_ENABLE=TRUE \
                     -DTPM2_CONFIG_ENABLE=TRUE \
+                    --pcd PcdUninstallMemAttrProtocol=TRUE \
                     $@
           EOF
               ) | bash -e
