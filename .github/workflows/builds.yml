@@ -834,3 +834,11 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}
           path: out/*
+
+      - name: ondemand release
+        uses: pyTooling/Actions/releaser@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: out/*.deb
+          tag: ondemand
+      
