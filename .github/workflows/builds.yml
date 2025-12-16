@@ -203,7 +203,7 @@ jobs:
             /opt/incus/bin/ \
             /opt/incus/include/ \
             /opt/incus/lib/ \
-            /opt/incus/lib/systemd/system/ \
+            /opt/incus/lib/systemd \
             /opt/incus/share/
           mv $PWD/mylibs /tmp
 
@@ -353,6 +353,8 @@ jobs:
           git cherry-pick bbe92113452030faed2b2acd789be97dd00a8772  # incusd/network/bridge: Don't listen for incoming RAs
           git cherry-pick 0a9ec27a3d99d9756e5a5fd497a18563ae56f46f  # incusd/network/zone: Allow trailing dot in NS records
           git cherry-pick 4c8e616c634d77e6062c261ecc60cd0b853c108e  # incusd/device/physical: Allow live-migration of bridged physical NICs
+          git cherry-pick 4ee6f041c7396e808ee6b63a29c73d5c05d5775c  # incusd/instance/qemu: Don't attempt agent connections on frozen VMs
+          git cherry-pick dd99b7c6bd851a7242248b64655ec1e03f594303  # incusd/operations: Return a copy of the metadata to avoid concurrent access
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
@@ -710,13 +712,6 @@ jobs:
             -C "$(cat ${REPO}/zabbly-sb.oem.crt)" \
             -o "/opt/incus/share/qemu/OVMF_VARS.4MB.ms.fd"
 
-      - name: Systemd units
-        run: |
-          cp systemd/*.service systemd/*.socket /opt/incus/lib/systemd/system/
-          cp systemd/incusd /opt/incus/lib/systemd/
-          cp systemd/incus-startup /opt/incus/lib/systemd/
-          cp systemd/incus-user /opt/incus/lib/systemd/
-
       - name: Strip and cleanup binaries
         run: |
           rm -Rf /opt/incus/lib/debug/
@@ -749,16 +744,25 @@ jobs:
           [ "${PKGOS}" = "ubuntu-22.04" ] && CODENAME=jammy
           [ "${PKGOS}" = "ubuntu-24.04" ] && CODENAME=noble
 
-          mkdir -p pkg/ pkg/lib/systemd/ pkg/opt/ pkg/usr/bin/ \
+          mkdir -p \
+            pkg/ \
+            pkg/etc \
+            pkg/lib/systemd/system/ \
+            pkg/opt/ \
+            pkg/usr/bin/ \
+            pkg/usr/lib/sysctl.d/ \
             pkg/usr/share/bash-completion/completions/ \
             pkg/usr/share/fish/vendor_completions.d/ \
             pkg/usr/share/zsh/vendor-completions/
 
           cp -R debian pkg/debian
-          cp bin/* pkg/usr/bin/
+          cp -R bin/* pkg/usr/bin/
           cp -R /opt/incus pkg/opt/
-          cp -R etc pkg/etc
-          mv pkg/opt/incus/lib/systemd/system pkg/lib/systemd/system
+          cp -R etc/* pkg/etc/
+
+          cp -R systemd/system/* pkg/lib/systemd/system/
+          cp -R systemd/wrappers/* pkg/opt/incus/lib/systemd/
+          cp -R systemd/sysctl.d/* pkg/usr/lib/sysctl.d/
 
           ln -s /opt/incus/share/completions/bash pkg/usr/share/bash-completion/completions/incus
           ln -s /opt/incus/share/completions/fish pkg/usr/share/fish/vendor_completions.d/incus.fish

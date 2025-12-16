@@ -67,6 +67,7 @@ Depends: ${misc:Depends},
   libsqlite3-0,
   libudev1,
   LIBUV1,
+  pci.ids,
   rsync,
   gdisk,
   squashfs-tools,
@@ -79,6 +80,7 @@ Suggests:
   btrfs-progs,
   ceph-common,
   lvm2,
+  xfsprogs,
   zfsutils-linux | openzfs-zfsutils
 Pre-Depends: ${misc:Pre-Depends}
 Breaks: incus (<< ${source:Version}), incus-tools
