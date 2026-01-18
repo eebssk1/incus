@@ -747,6 +747,8 @@ jobs:
           [ "${PKGOS}" = "ubuntu-22.04" ] && CODENAME=jammy
           [ "${PKGOS}" = "ubuntu-24.04" ] && CODENAME=noble
 
+          echo "reltime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+
           mkdir -p \
             pkg/ \
             pkg/etc \
@@ -836,10 +838,12 @@ jobs:
           name: ${{ matrix.os }}-${{ matrix.arch }}
           path: out/*
 
-      - name: ondemand release
-        uses: pyTooling/Actions/releaser@v6.7.0
+      - name: release
+        uses: ncipollo/release-action@v1.14.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: out/*.deb
-          tag: ondemand
+          allowUpdates: true
+          artifacts: "out/*.deb"
+          commit: stable
+          makeLatest: true
+          tag: rel-${{ env.reltime }}
       
