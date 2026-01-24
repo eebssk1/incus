@@ -738,6 +738,7 @@ jobs:
           strip /opt/incus/lib/*so*
 
       - name: Make a Debian package
+        id: pack
         env:
           PKGOS: ${{ matrix.os }}
         run: |
@@ -843,7 +844,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: "out/*.deb"
-          commit: stable
+          commit: "stable"
           makeLatest: true
-          tag: rel-${{ env.reltime }}
+          tag: "rel-${{ steps.pack.outputs.reltime }}"
       
