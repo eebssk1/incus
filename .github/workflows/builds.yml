@@ -50,16 +50,16 @@ jobs:
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
       INCUS_TAG: "v6.21.0"
-      INCUS_UI_CANONICAL_TAG: "incus-0.19.5"
-      LXCFS_TAG: "v6.0.5"
+      INCUS_UI_CANONICAL_TAG: "incus-0.19.7"
+      LXCFS_TAG: "v6.0.6"
       LXC_TAG: "v6.0.5"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
       CRIU_TAG: "v4.2"
-      EDK2_TAG: "edk2-stable202511"
+      EDK2_TAG: "edk2-stable202602"
       GOLANG_TAG: "go1.26.0"
-      LEGO_TAG: "v4.31.0"
+      LEGO_TAG: "v4.32.0"
       LIBTPMS_TAG: "v0.10.2"
       LIBURING_TAG: "liburing-2.14"
       MINIO_MC_TAG: "RELEASE.2025-08-13T08-35-41Z"
@@ -341,81 +341,7 @@ jobs:
 
           cd /build/incus
 
-          git cherry-pick f9fc3ef6fa8185ecf91216141b662890ff16e5ca
-          git cherry-pick 251553cf33dd2f9a38f6f3de026804892cc33db5
-
-          git cherry-pick 1c0455c2ca201ec282b504c28096f50cb13a071b  # incusd/device/nic: Fix connected logic for non-NIC QEMU devices
-          git cherry-pick c829eba4b7eec64d3d4f8fdc3d20433b40bb5c8c  # doc: Update config
-          git cherry-pick 945a885af9d3f88c905ad5c5b7af9f1232b69433  # incusd/instance/qmp: Prevent setting link up at initialization
-          git cherry-pick ee2fc45f2d9300e58d9fb5b378a7f2531034cceb  # incusd/instance/qemu: Properly initialize connected status
-          git cherry-pick 9a7eaf1333fbb902b29a328c02ff54c49e4aa03f  # incusd/storage/zfs: Set IncusOS storage usage property
-          git cherry-pick 0de3f4ed7144299457d1f37589fff90b39d42b16  # Fix typo: Supported cConditions to Supported Conditions
-          git cherry-pick 5e19938aae0d0790e645d5d97309360342cff6c7  # shared/util: Fix SingleQuote to actually quote
-          git cherry-pick 4e5af56d1205563f53481d27e3ce0f1eb45e573e  # cmd/incus: Fix get-client-certificate ignoring per-remote certs
-          git cherry-pick 336e9c14a31bb63d49b02ba6085d67c425ea3f83  # incusd/storage/lvm: Move IncusOS check to pool creation
-          git cherry-pick 4fcdbbc47937a4d5ba08ca7dbf045deabfd47ce6  # incus-migrate: Allow running as non-root
-          git cherry-pick 7f5bef42bef75c3fe361aa2af69a37a2c52e1c14  # incus-migrate: Add URL imports
-          git cherry-pick 8d709107af9e4b44e6848fae4c8e2ff0955e7445  # doc: Ignore broken links on Alpine gitlab
-          git cherry-pick 6da39979ec860ddd42b2d89711dd78c7bec6e286  # doc: Ignore broken links on docbook website
-          git cherry-pick 2eae0da145a9ff676f24a792b29e862baa086778  # github: Deal with new Github images
-          git cherry-pick 9bbd1361a80b420ab864b9dcf2d9b8931faed393  # tests: Fix SR-IOV attached key test
-          git cherry-pick cbeffb008344906e9b17989d1bfde70a110c2f1b  # incusd/device/nic_physical: Allow migration of managed devices
-          git cherry-pick 36ad2cbcbc70c9f7c445b4588a997f731ef0f0b2  # shared/cliconfig: Don't pass scheme to OCI creds helper
-          git cherry-pick 06f30e185f805b9efe59e0599191b34e72423caa  # incusd/cluster: Allow restoring a cluster without its instances
-          git cherry-pick 5493daf9587ad45bccfcb0d26ec5e1d8c43c577e  # internal/instance; Correct doc for boot.autostart.priority
-          git cherry-pick 80a5519509214172615c713a9b84df5381299ae4  # doc: Update config
-          git cherry-pick b2a41e7b9f0883dff992c4d91193648f977c266e  # incusd/cluster: Restrict join token to database servers
-          git cherry-pick b234ba988cff3ee1b94347c224a2c37fb2dc1e74  # incusd/storage/lvm: Prevent use of lvmcluster with loop files
-          git cherry-pick bb6e2b09ebbeb61c84354c1515b3de8f92edc295  # incusd/operations: Prevent concurrent access to metadata
-          git cherry-pick 5c9b30069d1ddb91ebcb5a0f1f14940e531e6067  # incusd/storage: Add support for renaming qcow2 volumes
-          git cherry-pick 336ec10ad1038c8efc8fad7f755cadda502b1e02  # incusd/storage/drivers: Load NBD module for lvmcluster
-          git cherry-pick e2e098d6f2ae95538b2da212f193fd098b361331  # incusd/instance/drivers: Pass information about whether migration is live
-          git cherry-pick 1dde134919cb77115e04e2767aa0009f0558160c  # incusd/storage: Add support for qcow2 volume migration
-          git cherry-pick b3b3d1c27cad8a16b8307b6c384ec0854b82943b  # incusd/storage: Add snapshot mount paths parameter to the task function
-          git cherry-pick c8938372104e34f5b2c2bc438d05765793d1a251  # incusd/device/nic_riov: Retry MAC setting logic
-          git cherry-pick 290594583613db81f9b789e044cab2bbcc5dc98c  # doc/howto/instances: Mention keeping agent drive attached
-          git cherry-pick da03a4bf41b5ea10921b1889b9c547d7a8926802  # incusd/instances/agent-loader: Silence semanage
-          git cherry-pick 659a645a743c07c479d23b74e7dd42dfd2db26df  # incusd/cluster: Also transfer public key on join
-          git cherry-pick ebd805b9f29d8715a3b0975c6a57fa00d56fb37d  # doc/cloud-init: Fix bad link
-          git cherry-pick 71588565dbd30a79dab6b511c381e4c5732c4ce0  # incusd: Search OVS switch external_interfaces
-          git cherry-pick 337985bfd83f5908894160fc321ccf8d1b7087c0  # doc/backup: Fix MarkdownLint warnings
-          git cherry-pick df76956b950424d43a5bdd95bf9a96a195a7bbda  # incusd/storage_volumes_snapshot: Treat pongo templates as unique
-          git cherry-pick cc9b34b188af8e45cc874a2707ccd8bd4cb8bf95  # incusd/instance/drivers: Propagate error when adding qcow2 backing block device
-          git cherry-pick dd0740be1678b1f128726e4eeca1e6652c6eb203  # incusd/instance/qemu: gofumpt
-          git cherry-pick 4410362bfa7adbd5e5dd9e8c0191f1d32188db08  # incusd/device/disk: Add IsSpecialDisk
-          git cherry-pick 5980894f36a28af14507475816fe4bfa2ada007b  # incusd/instance/lxc: Skip metrics on special disks
-          git cherry-pick a5e48412a31e3fe9eb54c91f5f0313352c49ea40  # incusd/storage: Prevent moving shared storage volumes
-          git cherry-pick 3496d3eb36fe0c96722535dc7de5eb31bdf2f797  # doc: Update incus-migrate documentation
-          git cherry-pick 83edce68d51e89428417a2536f3ae92af01350f3  # incusd: Validate that instance can be migrated
-          git cherry-pick 87d4380fd85ef6dd1201f8b69fef59ba5327654d  # incusd/instance/drivers: Add writable argument to NBDBlockExportAdd
-          git cherry-pick 76fb4423ee9a217d0f680d184f18dd2fa131a197  # incusd/instance/drivers/qmp: Add NBDUnixServerStart
-          git cherry-pick 356889a52e3aa72bf8a8b21613b4b49d06f6c7ec  # incusd/instance: Add ExportQcow2Disk
-          git cherry-pick d28d49e020e179ca69dd92cab5ffda774014c6fb  # incusd/storage: Support live migration of qcow2 volumes
-          git cherry-pick 2ca7d816411f37304684543d1f2b4f64655dfd26  # doc: Add information about lvmcluster limitations
-          git cherry-pick 01f1702e9fffdb8b1ad0cd53aa98e9342da6951a  # incusd/instance: Add QCOW2 live migration support for instances with snapshots
-          git cherry-pick 63a91a126dc960e9e08d26895b94e3ebed08488c  # incusd/storage: Add QCOW2 live migration support for instances with snapshots
-          git cherry-pick 0065387fb1a5291177374033a0c8c72c5863d671  # incusd: Remove ensureMigratable as checks are no longer valid
-          git cherry-pick 27ab629c3532dfa86b8771b801ee3138e1fac2a4  # doc: Remove outdated doc about live QCOW2 migration limitation
-          git cherry-pick aaa1b2bea1a1f653194605b78d1caab00e31b0b4  # incusd/instance/drivers: Propagate live migration information
-          git cherry-pick e43dd3ce26dd4ce101ba297fc09f7196e3c99ee9  # incusd/storage: Skip final filesystem sync for VMs during migration
-          git cherry-pick 2da034d1c768b53312a742cd4189923aad3655e3  # doc/requirements: Bump minimal requirements
-          git cherry-pick af8f62bf9964e2791b47fc3d4f08d6eb974d4703  # Validate requested storage pool during instance migration
-          git cherry-pick 8d63da8aae8e7f3d899328630a86142655e6005f  # incusd/instance/qemu: Rename onDisconnectEvent to initialized
-          git cherry-pick bff2bf92a42c2230d0044571eaef3b5867941234  # incusd/instance/qemu: Add EventVMReset
-          git cherry-pick f2264d9f8db6799804e575ded3840e51bdd86c91  # incusd/instance/qemu: Use standard QEMU actions and catch in handler
-          git cherry-pick 4bf7943a92b8670e005e5f0c3013f98c9d2599a8  # internal/instance: Add volatile.vm.needs_reset
-          git cherry-pick fecec8cbb8fbaa58cd9ca70b310206635da75662  # incusd/instance/qemu: Implement fast reboot
-          git cherry-pick 478d3c63bc04f2cdac32729d38d3fe5d9c59a54d  # doc: Update config
-          git cherry-pick 75f50c23fbef65a547c93cd58536b0f9bc87866f  # incusd/instance/qmp: Fix cross-server live-migration
-          git cherry-pick 56e15e45c49ef74ba2703bc73a58cad370d5fc95  # incusd/instance/qemu: Report QEMU error on VM restore
-          git cherry-pick 156800b1135fa54a62dd23b2d5bc3d4f8a00be3d  # incus-migrate: Fix URL detection
-          git cherry-pick 46f90806d7992e8a22e1c418eab82e8a58601f8c  # incusd/instance/drivers: Remove instance volume on revert after failed live migration
-          git cherry-pick 69d4b28ac27199c67b303d64b61308183fbd0236  # incusd/instance/drivers: Propagate target migration failure to source using context cancellation
-          git cherry-pick acf27c1ed354b96cf3e89abbf5d603f82a9649ab  # incusd/storage: Prevent concurrent QCOW2 snapshot deletions
-          git cherry-pick b52b3d8cb9083fe975cc363a80593800161a7619  # incusd/instance/qemu: Require full restart after eject
-          git cherry-pick 1f8a4309d005d07f134efe0144858ae84db14903  # incusd/storage: Prevent concurrent snapshot deletions
-          git cherry-pick 7df3e454d83c707a10fc16019a50e9dd135ae9e2  # incusd/instance/qemu: Force a real reboot after applying templates
-          git cherry-pick 12ae18768498d401b555b43038f48e2022a833cf  # fixup0
+          git checkout fe47cb225b4aa21789910d6589d7f86b0338dc47
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
