@@ -338,7 +338,7 @@ jobs:
 
           cd /build/incus
 
-          git checkout 42ddfd2acbe87e6217bc13ea4a17864e9bf19e74
+          git checkout a15fc8070570601c4142114f770113b2b6109bd9
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
