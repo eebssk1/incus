@@ -56,7 +56,7 @@ jobs:
       CRIU_TAG: "v4.2"
       EDK2_TAG: "edk2-stable202602"
       GOLANG_TAG: "go1.26.2"
-      LEGO_TAG: "v4.33.0"
+      LEGO_TAG: "v4.35.2"
       LIBTPMS_TAG: "v0.10.2"
       LIBURING_TAG: "liburing-2.14"
       MINIO_MC_TAG: "RELEASE.2025-08-13T08-35-41Z"
@@ -338,7 +338,7 @@ jobs:
 
           cd /build/incus
 
-          git checkout a15fc8070570601c4142114f770113b2b6109bd9
+          git checkout 9cd07e444736fb44abcd53bae25520b5223bb613
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
