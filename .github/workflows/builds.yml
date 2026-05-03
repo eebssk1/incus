@@ -46,24 +46,24 @@ jobs:
       LTO_FLAGS: "-flto=auto -flto-partition=one -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_TAG: "v6.23.0"
+      INCUS_TAG: "v7.0.0"
       INCUS_UI_CANONICAL_TAG: "incus-0.19.9"
-      LXCFS_TAG: "v6.0.6"
-      LXC_TAG: "v6.0.6"
+      LXCFS_TAG: "v7.0.0"
+      LXC_TAG: "v7.0.0"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
       CRIU_TAG: "v4.2"
       EDK2_TAG: "edk2-stable202602"
       GOLANG_TAG: "go1.26.2"
-      LEGO_TAG: "v4.33.0"
+      LEGO_TAG: "v4.35.2"
       LIBTPMS_TAG: "v0.10.2"
       LIBURING_TAG: "liburing-2.14"
       MINIO_MC_TAG: "RELEASE.2025-08-13T08-35-41Z"
       MINIO_TAG: "RELEASE.2025-10-15T17-29-55Z"
       NASM_TAG: "nasm-2.16.03"
       NVIDIA_CONTAINER_TAG: "v1.19.0"
-      QEMU_TAG: "v10.2.2"
+      QEMU_TAG: "v11.0.0"
       RAFT_TAG: "v0.22.1"
       SEABIOS_TAG: "rel-1.17.0"
       SKOPEO_TAG: "v1.22.2"
@@ -266,7 +266,12 @@ jobs:
           export CFLAGS="$CFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
+
+          REPO="${PWD}"
+
           cd /build/cowsql
+          patch -p1 < "${REPO}/patches/cowsql-0001-discarded-qualifiers.patch"
+
           autoreconf -i
           ./configure --prefix=/opt/incus
           make
@@ -338,35 +343,33 @@ jobs:
 
           cd /build/incus
 
-          git checkout a15fc8070570601c4142114f770113b2b6109bd9
-
-          go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v6/cmd/fuidshift
-          go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v6/cmd/incus
-          go build -o "/opt/incus/bin/incus-benchmark" github.com/lxc/incus/v6/cmd/incus-benchmark
-          go build -o "/opt/incus/bin/incus-migrate" github.com/lxc/incus/v6/cmd/incus-migrate
-          go build -o "/opt/incus/bin/incus-simplestreams" github.com/lxc/incus/v6/cmd/incus-simplestreams
-          go build -o "/opt/incus/bin/incus-user" github.com/lxc/incus/v6/cmd/incus-user
-          go build -o "/opt/incus/bin/incusd" -tags=libsqlite3 github.com/lxc/incus/v6/cmd/incusd
-          go build -o "/opt/incus/bin/lxc-to-incus" github.com/lxc/incus/v6/cmd/lxc-to-incus
-          go build -o "/opt/incus/bin/lxd-to-incus" -tags=libsqlite3 github.com/lxc/incus/v6/cmd/lxd-to-incus
+          go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v7/cmd/fuidshift
+          go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v7/cmd/incus
+          go build -o "/opt/incus/bin/incus-benchmark" github.com/lxc/incus/v7/cmd/incus-benchmark
+          go build -o "/opt/incus/bin/incus-migrate" github.com/lxc/incus/v7/cmd/incus-migrate
+          go build -o "/opt/incus/bin/incus-simplestreams" github.com/lxc/incus/v7/cmd/incus-simplestreams
+          go build -o "/opt/incus/bin/incus-user" github.com/lxc/incus/v7/cmd/incus-user
+          go build -o "/opt/incus/bin/incusd" -tags=libsqlite3 github.com/lxc/incus/v7/cmd/incusd
+          go build -o "/opt/incus/bin/lxc-to-incus" github.com/lxc/incus/v7/cmd/lxc-to-incus
+          go build -o "/opt/incus/bin/lxd-to-incus" -tags=libsqlite3 github.com/lxc/incus/v7/cmd/lxd-to-incus
 
           mkdir -p /opt/incus/agent
           if [ "$(uname -m)" = "x86_64" ]; then
-              GOARCH=amd64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.x86_64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
+              GOARCH=amd64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=386 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.i686" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
+              GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=386 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.x86_64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=386 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.i686" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
+              GOARCH=amd64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=386 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.x86_64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=386 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.i686" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
+              GOARCH=amd64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=386 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
           elif [ "$(uname -m)" = "aarch64" ]; then
-              GOARCH=arm64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.aarch64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=arm64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.aarch64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
-              GOARCH=arm64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.aarch64" -tags=agent,netgo github.com/lxc/incus/v6/cmd/incus-agent
+              GOARCH=arm64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=arm64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              GOARCH=arm64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
           fi
 
           make build-mo
@@ -409,7 +412,12 @@ jobs:
           export CFLAGS="$CFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
+
+          REPO="${PWD}"
+
           cd /build/criu
+          patch -p1 < "${REPO}/patches/criu-0001-fix-rseq-detection.patch"
+
           make WERROR=0
           cp criu/criu /opt/incus/bin/
 
@@ -552,13 +560,17 @@ jobs:
           ln -s OVMF_CODE.4MB.fd /opt/incus/share/qemu/OVMF_CODE.fd
           ln -s OVMF_VARS.4MB.fd /opt/incus/share/qemu/OVMF_VARS.fd
 
-      - name: Build libtmps
+      - name: Build libtpms
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
+
+          REPO="${PWD}"
+
           cd /build/libtpms
-          sed -i "s/-Wall -Werror -Wshadow/-Wall -Wshadow/g" configure.ac
+          patch -p1 < "${REPO}/patches/libtpms-0001-Fix-a-compilation-error-in-TPMLIB_GetPlaintext.patch"
+
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-tpm2 --with-openssl
           make
@@ -738,11 +750,11 @@ jobs:
         env:
           PKGOS: ${{ matrix.os }}
         run: |
-          [ "${PKGOS}" = "debian-11" ] && CODENAME=bullseye
           [ "${PKGOS}" = "debian-12" ] && CODENAME=bookworm
           [ "${PKGOS}" = "debian-13" ] && CODENAME=trixie
           [ "${PKGOS}" = "ubuntu-22.04" ] && CODENAME=jammy
           [ "${PKGOS}" = "ubuntu-24.04" ] && CODENAME=noble
+          [ "${PKGOS}" = "ubuntu-26.04" ] && CODENAME=resolute
 
           echo "reltime=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
 
@@ -789,7 +801,7 @@ jobs:
 
           cd pkg
 
-          if [ "${PKGOS}" = "debian-13" ] || [ "${PKGOS}" = "ubuntu-24.04" ]; then
+          if [ "${PKGOS}" = "debian-13" ] || [ "${PKGOS}" = "ubuntu-24.04" ] || [ "${PKGOS}" = "ubuntu-26.04" ]; then
             sed -i debian/control \
               -e "s/LIBPNG16/libpng16-16t64/g" \
               -e "s/LIBUSBREDIRPARSER1/libusbredirparser1t64/g" \
