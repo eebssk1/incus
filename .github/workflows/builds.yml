@@ -344,6 +344,7 @@ jobs:
           cd /build/incus
 
           git cherry-pick b970897447e5770e1795ce68e0c7cd597b4efbc0
+          git cherry-pick 2be7eef83a9570ea12f1e3cec2d76118ecf08370
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v7/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v7/cmd/incus
