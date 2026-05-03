@@ -570,9 +570,10 @@ jobs:
 
           cd /build/libtpms
           patch -p1 < "${REPO}/patches/libtpms-0001-Fix-a-compilation-error-in-TPMLIB_GetPlaintext.patch"
+          patch -p1 < "${REPO}/patches/libtpms-0002-disable-werror.patch"
 
           ./autogen.sh
-          ./configure --prefix=/opt/incus --with-tpm2 --with-openssl
+          ./configure --prefix=/opt/incus --with-tpm2 --with-openssl --disable-hardening
           make
 
           mkdir -p /build/target/libtpms/
