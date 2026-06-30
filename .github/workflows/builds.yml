@@ -85,8 +85,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends --yes \
+          apt-get update
+          apt-get install --no-install-recommends --yes \
             acpica-tools \
             asciidoc \
             autoconf \
@@ -170,13 +170,13 @@ jobs:
             xorriso \
             qemu-system-x86
 
-          sudo apt-get install --no-install-recommends --yes systemd-dev || true
+          apt-get install --no-install-recommends --yes systemd-dev || true
 
           pipx install meson
 
       - name: Install Go
         run: |
-          curl -sL "https://go.dev/dl/${GOLANG_TAG}.linux-${OS_ARCH}.tar.gz" | sudo tar -C /usr/local/ -zx
+          curl -sL "https://go.dev/dl/${GOLANG_TAG}.linux-${OS_ARCH}.tar.gz" | tar -C /usr/local/ -zx
           go version
 
       - name: Install Rust
@@ -190,13 +190,13 @@ jobs:
           [ "${OS_ARCH}" = "arm64" ] && NODE_ARCH=arm64
 
 
-          sudo mkdir /usr/local/node/
-          curl -sL "https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-${NODE_ARCH}.tar.xz" | sudo tar -C /usr/local/node/ -Jx --strip-components=1
+          mkdir /usr/local/node/
+          curl -sL "https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-${NODE_ARCH}.tar.xz" | tar -C /usr/local/node/ -Jx --strip-components=1
 
       - name: Build environment
         run: |
-          sudo mkdir -p /build/ /opt/
-          sudo chown $(id -u):$(id -g) /build/ /opt/
+          mkdir -p /build/ /opt/
+          chown $(id -u):$(id -g) /build/ /opt/
 
           mkdir -p \
             /opt/incus/bin/ \
