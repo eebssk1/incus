@@ -42,6 +42,7 @@ Depends: ${misc:Depends},
   dnsmasq-base,
   e2fsprogs,
   fuse3,
+  gnutls-bin,
   incus-client (= ${source:Version}),
   iproute2,
   nftables | iptables,
@@ -143,7 +144,6 @@ Description: Incus - Extra tools
   - incus-migrate
   - incus-simplestreams
   - lxc-to-incus
-  - lxd-to-incus
  .
  This build of Incus is provided for free by Zabbly.
  Zabbly can be contacted for commercial support and development on Incus.

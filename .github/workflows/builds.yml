@@ -32,13 +32,12 @@ jobs:
     env:
       OS_ARCH: ${{ matrix.arch }}
       OS_NAME: ${{ matrix.os }}
-      HOME: "/root/"
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/:/tmp/mylibs"
       CGO_LDFLAGS: "-L/opt/incus/lib/ -L/tmp/mylibs -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
       CGO_CFLAGS: "-I/opt/incus/include/ -O3 -mtune=broadwell -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
-      PATH: "/opt/incus/bin:/root/.cargo/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+      PATH: "/github/home/.cargo/bin:/github/home/.local/bin:/root/.local/bin:/opt/incus/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
       CFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
       CXXFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
@@ -46,8 +45,8 @@ jobs:
       LTO_FLAGS: "-flto=auto -fipa-reorder-for-locality -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_TAG: "v7.1.0"
-      INCUS_UI_CANONICAL_TAG: "incus-0.19.9"
+      INCUS_TAG: "v7.2.0"
+      INCUS_UI_CANONICAL_TAG: "incus-0.21.2"
       LXCFS_TAG: "v7.0.0"
       LXC_TAG: "v7.0.0"
 
@@ -55,13 +54,13 @@ jobs:
       COWSQL_TAG: "v1.15.9"
       CRIU_TAG: "v4.2"
       EDK2_TAG: "edk2-stable202605"
-      GOLANG_TAG: "go1.26.3"
+      GOLANG_TAG: "go1.26.4"
       LEGO_TAG: "v4.35.2"
       LIBTPMS_TAG: "v0.10.2"
       LIBURING_TAG: "liburing-2.14"
       NASM_TAG: "nasm-2.16.03"
       NVIDIA_CONTAINER_TAG: "v1.19.1"
-      QEMU_TAG: "v11.0.1"
+      QEMU_TAG: "v11.0.2"
       RAFT_TAG: "v0.22.1"
       SEABIOS_TAG: "rel-1.17.0"
       SKOPEO_TAG: "v1.23.0"
@@ -86,8 +85,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get install --no-install-recommends --yes \
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes \
             acpica-tools \
             asciidoc \
             autoconf \
@@ -103,6 +102,8 @@ jobs:
             flex \
             gawk \
             gettext \
+            gnutls-bin \
+            gnutls-dev \
             git \
             iproute2 \
             libacl1-dev \
@@ -149,6 +150,7 @@ jobs:
             lsb-release \
             mtools \
             ninja-build \
+            pipx \
             pkg-config \
             protobuf-c-compiler \
             protobuf-compiler \
@@ -157,6 +159,7 @@ jobs:
             python3-pexpect \
             python3-pip \
             python3-setuptools \
+            python3-tomli \
             python3-venv \
             rsync \
             socat \
@@ -167,14 +170,13 @@ jobs:
             xorriso \
             qemu-system-x86
 
-          apt-get install --no-install-recommends --yes systemd-dev || true
+          sudo apt-get install --no-install-recommends --yes systemd-dev || true
 
-          pip3 install meson || pip3 install meson --break-system-packages
-          pip3 install tomli || pip3 install tomli --break-system-packages
+          pipx install meson
 
       - name: Install Go
         run: |
-          curl -sL "https://go.dev/dl/${GOLANG_TAG}.linux-${OS_ARCH}.tar.gz" | tar -C /usr/local/ -zx
+          curl -sL "https://go.dev/dl/${GOLANG_TAG}.linux-${OS_ARCH}.tar.gz" | sudo tar -C /usr/local/ -zx
           go version
 
       - name: Install Rust
@@ -188,12 +190,14 @@ jobs:
           [ "${OS_ARCH}" = "arm64" ] && NODE_ARCH=arm64
 
 
-          mkdir /usr/local/node/
-          curl -sL "https://nodejs.org/dist/v22.11.0/node-v22.11.0-linux-${NODE_ARCH}.tar.xz" | tar -C /usr/local/node/ -Jx --strip-components=1
+          sudo mkdir /usr/local/node/
+          curl -sL "https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-${NODE_ARCH}.tar.xz" | sudo tar -C /usr/local/node/ -Jx --strip-components=1
 
       - name: Build environment
         run: |
-          mkdir -p /build/
+          sudo mkdir -p /build/ /opt/
+          sudo chown $(id -u):$(id -g) /build/ /opt/
+
           mkdir -p \
             /opt/incus/bin/ \
             /opt/incus/include/ \
@@ -339,7 +343,9 @@ jobs:
 
           cd /build/incus
 
-          git cherry-pick a1276cdb57297245496ac8c1db76b90d1fcebd3b  # incusd/instance/lxc: Fix environment quoting
+          git cherry-pick 30c603507e631eb90ed189a9803709a95ed61c71  # incus/move: Apply --storage pool to dependent disks
+          git cherry-pick c97d867faabce3bb56176709396b0506afc0d95e  # incusd/firewall: Fix double Wait in nftParseRuleset
+          git cherry-pick 713a400c979c2473e40f813a92246b7788aebe17  # incusd/device: Allow static CIDR address on unmanaged bridge
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v7/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v7/cmd/incus
@@ -349,7 +355,6 @@ jobs:
           go build -o "/opt/incus/bin/incus-user" github.com/lxc/incus/v7/cmd/incus-user
           go build -o "/opt/incus/bin/incusd" -tags=libsqlite3 github.com/lxc/incus/v7/cmd/incusd
           go build -o "/opt/incus/bin/lxc-to-incus" github.com/lxc/incus/v7/cmd/lxc-to-incus
-          go build -o "/opt/incus/bin/lxd-to-incus" -tags=libsqlite3 github.com/lxc/incus/v7/cmd/lxd-to-incus
 
           mkdir -p /opt/incus/agent
           if [ "$(uname -m)" = "x86_64" ]; then
@@ -391,7 +396,7 @@ jobs:
           # Complete re-branding.
           find -type f -name "*.ts" -o -name "*.tsx" -o -name "*.scss" | xargs sed -i -f "${REPO}/patches/ui-canonical-renames.sed"
 
-          npm install yarn --global
+          npm install -g --prefix /root/.local yarn
           yarn install
           yarn build
 
@@ -573,7 +578,7 @@ jobs:
           export RANLIB=gcc-ranlib
           cd /build/swtpm
           ./autogen.sh
-          ./configure --prefix=/opt/incus --with-seccomp --with-openssl --without-cuse
+          ./configure --prefix=/opt/incus --with-gnutls --with-seccomp --with-openssl --without-cuse
           make
 
           mkdir -p /build/target/swtpm/
