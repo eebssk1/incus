@@ -34,14 +34,16 @@ jobs:
       OS_NAME: ${{ matrix.os }}
       PKG_CONFIG_PATH: "/opt/incus/lib/pkgconfig/:/tmp/mylibs"
       CGO_LDFLAGS: "-L/opt/incus/lib/ -L/tmp/mylibs -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
-      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -mtune=broadwell -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
+      CGO_CFLAGS: "-I/opt/incus/include/ -O3 -Wa,-O2 -mtune=broadwell -flto=auto -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
       LD_LIBRARY_PATH: "/opt/incus/lib/"
       CPATH: "/opt/incus/include/"
       PATH: "/github/home/.cargo/bin:/github/home/.local/bin:/root/.local/bin:/opt/incus/bin:/usr/local/go/bin:/usr/local/node/bin:/opt/x86_64-linux-gnu/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
       GOAMD64: "v2"
-      CFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
-      CXXFLAGS: "-O3 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
+      CFLAGS: "-O3 -Wa,-O2 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
+      CFLAGS_2: "-O3 -Wa,-O2 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -flimit-function-alignment -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
+      CXXFLAGS: "-O3 -Wa,-O2 -mtune=broadwell -D__1ENABLE_AGGRESSIVE_GRAPHITE9__ -funsafe-math-optimizations -flimit-function-alignment -fgcse-las -falign-jumps=32:16:16:11 -falign-loops=32:16:16:11 -falign-functions=32:18:16:12 -fmin-function-alignment=8"
       LDFLAGS: "-L/tmp/mylibs -Wl,-O3,--relax -Wl,--sort-common,--sort-section=alignment -Wl,--as-needed -static-libgcc -static-libstdc++"
+      LDFLAGS_2: "-O3"
       LTO_FLAGS: "-flto=auto -fipa-reorder-for-locality -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
@@ -76,6 +78,12 @@ jobs:
 
       - name: load toolchain
         run: curl -sL "https://github.com/eebssk1/aio_tc_build/releases/latest/download/x86_64-linux-gnu-native.tb2" | tar -C /opt --bz -x
+
+      - name: set cflags for link
+        run: |
+          echo "LDFLAGS=$CFLAGS $LDFLAGS" >> $GITHUB_ENV
+          #echo "LDFLAGS_2=$CFLAGS_2 $LDFLAGS_2" >> $GITHUB_ENV
+          echo "CGO_LDFLAGS=$CGO_CFLAGS $CGO_LDFLAGS" >> $GITHUB_ENV
 
       - name: Configure git
         run: |
@@ -235,6 +243,7 @@ jobs:
       - name: Build liburing
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/liburing
@@ -249,6 +258,7 @@ jobs:
       - name: Build raft
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/raft
@@ -264,6 +274,7 @@ jobs:
       - name: Build cowsql
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
 
@@ -288,6 +299,7 @@ jobs:
           cd /build/lxc
 
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
 
           meson setup build \
                   --prefix=/opt/incus \
@@ -318,6 +330,7 @@ jobs:
           REPO="${PWD}"
 
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
 
           cd /build/lxcfs
           meson setup build \
@@ -408,8 +421,8 @@ jobs:
 
       - name: Build CRIU
         run: |
-          export CFLAGS=""
-          export LDFLAGS=""
+          export CFLAGS="$CFLAGS_2"
+          export LDFLAGS="$LDFLAGS_2"
 
           REPO="${PWD}"
 
@@ -567,6 +580,7 @@ jobs:
       - name: Build libtpms
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
 
@@ -588,6 +602,7 @@ jobs:
       - name: Build swtpm
         run: |
           export CFLAGS="$CFLAGS $LTO_FLAGS"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/swtpm
@@ -641,6 +656,7 @@ jobs:
           REPO="${PWD}"
 
           export CFLAGS="$CFLAGS $LTO_FLAGS -Wno-error"
+          export LDFLAGS="$LDFLAGS $LTO_FLAGS"
 
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
