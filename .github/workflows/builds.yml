@@ -313,6 +313,7 @@ jobs:
           REPO="${PWD}"
 
           cd /build/lxc
+          git checkout dc15af12c6a12d2946a5178001b3c377e2a9c694
 
           export CFLAGS="$CFLAGS $LTO_FLAGS"
           export LDFLAGS="$LDFLAGS $LTO_FLAGS"
