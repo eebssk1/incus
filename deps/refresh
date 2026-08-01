@@ -19,9 +19,14 @@ while read line; do
     grep -v '{}' |
     grep -v \\.99 |
     grep -Ev 'rc|beta|alpha' |
-    grep "${pattern}" |
+    grep "/tags/${pattern}" |
     tail -1 |
     sed "s#.*refs/tags/##g")"
+
+  if [ "${version}" = "" ]; then
+    echo "${tag} => no stable tag, skipping"
+    continue
+  fi
 
   sed -i "s#${tag}: .*#${tag}: \"${version}\"#g" ../.github/workflows/builds.yml
   echo "${tag} => ${version}"

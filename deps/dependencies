@@ -1,4 +1,5 @@
 DISTROBUILDER_TAG https://github.com/lxc/distrobuilder distrobuilder-
+INCUS_COMPOSE_TAG https://github.com/lxc/incus-compose v
 INCUS_TAG https://github.com/lxc/incus v
 INCUS_UI_CANONICAL_TAG https://github.com/zabbly/incus-ui-canonical incus-
 LXCFS_TAG https://github.com/lxc/lxcfs v
@@ -19,4 +20,5 @@ SEABIOS_TAG https://gitlab.com/qemu-project/seabios rel-
 SKOPEO_TAG https://github.com/containers/skopeo v
 SWTPM_TAG https://github.com/stefanberger/swtpm v
 TRUENAS_INCUS_CTL_TAG https://github.com/truenas/truenas_incus_ctl v
+VIRGLRENDERER_TAG https://gitlab.freedesktop.org/virgl/virglrenderer 1
 VIRTIOFSD_TAG https://gitlab.com/virtio-fs/virtiofsd v
