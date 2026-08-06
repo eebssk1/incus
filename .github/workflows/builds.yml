@@ -374,6 +374,7 @@ jobs:
           cd /build/incus
 
           git cherry-pick f2927474fe17ac1d62fb96b5df05cf7b3399ab27  # incus: add security.shift.method config key for physical chown
+          git cherry-pick 8541a29a03c9ba567af195bd504ba93c0507b26f  # add idmap mode volatile def
           git cherry-pick b406a0397cc3a7778c79dbf863e3559b38d34353  # incus/low-level: Fix naming inconsistency
           git cherry-pick a2aa861daec6d4539bdfd5c519416b9b08bc87ec  # i18n: Update translation templates
           git cherry-pick 19269185635ab4470de60ef1c828a43a13ed0fe4  # shared/api: Hide additional sensitive config keys
