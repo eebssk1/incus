@@ -78,6 +78,9 @@ jobs:
       - name: clear up
         run: exec ./clr.sh
 
+      - name: disable git check
+        run: git config --global safe.directory '*'
+
       - name: load toolchain
         run: curl -sL "https://github.com/eebssk1/aio_tc_build/releases/latest/download/x86_64-linux-gnu-native.tb2" | tar -C /opt --bz -x
 
