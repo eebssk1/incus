@@ -19,7 +19,7 @@ fi
 printf '%s  %s\n' "$sha256" "$archive" | sha256sum --check
 tar -xzf "$archive" -C "$work"
 
-# Keep the compiler's default ISA and upstream's default security level.
+# Use upstream's architecture/SIMD preset and default security level.
 cmake -S "$source" -B "$build" -G Ninja \
     -DCMAKE_C_COMPILER="${CC:-gcc}" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -34,7 +34,8 @@ cmake -S "$source" -B "$build" -G Ninja \
     -DMI_PROFILE=OFF \
     -DMI_TLS_MODEL=LOCAL_DYNAMIC \
     -DMI_SECURE=DEFAULT \
-    -DMI_OPT_ARCH=OFF
+    -DMI_OPT_ARCH=ON \
+    -DMI_OPT_SIMD=ON
 cmake --build "$build" --parallel "${JOBS:-4}" \
     --target mimalloc-static mimalloc-test-api mimalloc-test-api-fill
 ctest --test-dir "$build" --output-on-failure -R '^test-api(-fill)?$'
