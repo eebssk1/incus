@@ -47,23 +47,23 @@ jobs:
       LTO_FLAGS: "-flto=auto -fipa-reorder-for-locality -ffat-lto-objects"
       # Linux Containers projects
       DISTROBUILDER_TAG: "distrobuilder-3.2"
-      INCUS_COMPOSE_TAG: "v1.3.4"
-      INCUS_TAG: "v7.5.1"
-      INCUS_UI_CANONICAL_TAG: "incus-0.21.7"
+      INCUS_COMPOSE_TAG: "v1.3.5"
+      INCUS_TAG: "v7.6.0"
+      INCUS_UI_CANONICAL_TAG: "incus-0.22.1"
       LXCFS_TAG: "v7.0.0"
       LXC_TAG: "v7.0.0"
 
       # External dependencies
       COWSQL_TAG: "v1.15.9"
-      CRIU_TAG: "v4.2.1"
+      CRIU_TAG: "v4.3"
       EDK2_TAG: "edk2-stable202608"
-      GOLANG_TAG: "go1.27.1"
+      GOLANG_TAG: "go1.27.3"
       LEGO_TAG: "v4.35.2"
       LIBTPMS_TAG: "v0.10.2"
       LIBURING_TAG: "liburing-2.15"
       NASM_TAG: "nasm-2.16.03"
       NVIDIA_CONTAINER_TAG: "v1.20.1"
-      QEMU_TAG: "v11.1.2"
+      QEMU_TAG: "v11.1.3"
       RAFT_TAG: "v0.22.1"
       SEABIOS_TAG: "rel-1.17.0"
       SKOPEO_TAG: "v1.24.1"
@@ -230,34 +230,45 @@ jobs:
 
       - name: Get the code
         run: |
-          git clone https://github.com/lxc/distrobuilder /build/distrobuilder --depth 1 -b "${DISTROBUILDER_TAG}"
-          git clone https://github.com/lxc/lxc /build/lxc -b "${LXC_TAG}"
-          git clone https://github.com/lxc/lxcfs /build/lxcfs -b "${LXCFS_TAG}"
-          git clone https://github.com/eebssk1/incus2 /build/incus -b "${INCUS_TAG}"
-          git clone https://github.com/lxc/incus-compose /build/incus-compose --depth 1 -b "${INCUS_COMPOSE_TAG}"
-          git clone https://github.com/zabbly/incus-ui-canonical /build/incus-ui-canonical --depth 1 -b "${INCUS_UI_CANONICAL_TAG}"
+          PIDS=""
+          bg() {
+              "$@" &
+              PIDS="${PIDS} $!"
+          }
 
-          git clone https://github.com/axboe/liburing /build/liburing --depth 1 -b "${LIBURING_TAG}"
-          git clone https://github.com/checkpoint-restore/criu /build/criu --depth 1 -b "${CRIU_TAG}"
-          git clone https://github.com/containers/skopeo /build/skopeo --depth 1 -b "${SKOPEO_TAG}"
-          git clone https://github.com/cowsql/cowsql /build/cowsql --depth 1 -b "${COWSQL_TAG}"
-          git clone https://github.com/cowsql/raft /build/raft --depth 1 -b "${RAFT_TAG}"
-          git clone https://github.com/go-acme/lego /build/lego --depth 1 -b "${LEGO_TAG}"
-          git clone https://github.com/NVIDIA/libnvidia-container /build/libnvidia-container --depth 1 -b "${NVIDIA_CONTAINER_TAG}"
-          git clone https://github.com/stefanberger/libtpms /build/libtpms --depth 1 -b "${LIBTPMS_TAG}"
-          git clone https://github.com/stefanberger/swtpm /build/swtpm --depth 1 -b "${SWTPM_TAG}"
-          git clone https://github.com/tianocore/edk2 /build/edk2 --recurse-submodules --shallow-submodules --depth 1 -b "${EDK2_TAG}"
-          git clone https://github.com/truenas/truenas_incus_ctl /build/truenas_incus_ctl --depth 1 -b "${TRUENAS_INCUS_CTL_TAG}"
-          git clone https://gitlab.com/qemu-project/qemu /build/qemu --depth 1 -b "${QEMU_TAG}"
-          git clone https://gitlab.com/qemu-project/seabios /build/seabios --depth 1 -b "${SEABIOS_TAG}"
-          git clone https://gitlab.com/virtio-fs/virtiofsd /build/virtiofsd --depth 1 -b "${VIRTIOFSD_TAG}"
+          bg git clone https://github.com/lxc/distrobuilder /build/distrobuilder --depth 1 -b "${DISTROBUILDER_TAG}"
+          bg git clone https://github.com/lxc/lxc /build/lxc -b "${LXC_TAG}"
+          bg git clone https://github.com/lxc/lxcfs /build/lxcfs -b "${LXCFS_TAG}"
+          bg git clone https://github.com/eebssk1/incus2 /build/incus -b "${INCUS_TAG}"
+          bg git clone https://github.com/lxc/incus-compose /build/incus-compose --depth 1 -b "${INCUS_COMPOSE_TAG}"
+          bg git clone https://github.com/zabbly/incus-ui-canonical /build/incus-ui-canonical --depth 1 -b "${INCUS_UI_CANONICAL_TAG}"
+
+          bg git clone https://github.com/axboe/liburing /build/liburing --depth 1 -b "${LIBURING_TAG}"
+          bg git clone https://github.com/checkpoint-restore/criu /build/criu --depth 1 -b "${CRIU_TAG}"
+          bg git clone https://github.com/containers/skopeo /build/skopeo --depth 1 -b "${SKOPEO_TAG}"
+          bg git clone https://github.com/cowsql/cowsql /build/cowsql --depth 1 -b "${COWSQL_TAG}"
+          bg git clone https://github.com/cowsql/raft /build/raft --depth 1 -b "${RAFT_TAG}"
+          bg git clone https://github.com/go-acme/lego /build/lego --depth 1 -b "${LEGO_TAG}"
+          bg git clone https://github.com/NVIDIA/libnvidia-container /build/libnvidia-container --depth 1 -b "${NVIDIA_CONTAINER_TAG}"
+          bg git clone https://github.com/stefanberger/libtpms /build/libtpms --depth 1 -b "${LIBTPMS_TAG}"
+          bg git clone https://github.com/stefanberger/swtpm /build/swtpm --depth 1 -b "${SWTPM_TAG}"
+          bg git clone https://github.com/tianocore/edk2 /build/edk2 --recurse-submodules --shallow-submodules --depth 1 -b "${EDK2_TAG}"
+          bg git clone https://github.com/truenas/truenas_incus_ctl /build/truenas_incus_ctl --depth 1 -b "${TRUENAS_INCUS_CTL_TAG}"
+          bg git clone https://gitlab.com/qemu-project/qemu /build/qemu --depth 1 -b "${QEMU_TAG}"
+          bg git clone https://gitlab.com/qemu-project/seabios /build/seabios --depth 1 -b "${SEABIOS_TAG}"
+          bg git clone https://gitlab.com/virtio-fs/virtiofsd /build/virtiofsd --depth 1 -b "${VIRTIOFSD_TAG}"
 
           if [ "${OS_NAME}" = "debian-13" ] || [ "${OS_NAME}" = "ubuntu-26.04" ]; then
-            git clone https://gitlab.freedesktop.org/virgl/virglrenderer /build/virglrenderer --depth 1 -b "${VIRGLRENDERER_TAG}"
+            bg git clone https://gitlab.freedesktop.org/virgl/virglrenderer /build/virglrenderer --depth 1 -b "${VIRGLRENDERER_TAG}"
           fi
 
           mkdir /build/nasm/
-          curl -sL "https://www.nasm.us/pub/nasm/releasebuilds/$(echo ${NASM_TAG} | cut -d- -f2)/${NASM_TAG}.tar.gz" --resolve www.nasm.us:443:198.137.202.136 | tar -C /build/nasm/ -zx --strip-components=1
+          curl -sL "https://www.nasm.us/pub/nasm/releasebuilds/$(echo ${NASM_TAG} | cut -d- -f2)/${NASM_TAG}.tar.gz" --resolve www.nasm.us:443:198.137.202.136 | tar -C /build/nasm/ -zx --strip-components=1 &
+          PIDS="${PIDS} $!"
+
+          for pid in ${PIDS}; do
+              wait "${pid}"
+          done
 
       - name: Build liburing
         run: |
@@ -267,7 +278,7 @@ jobs:
           export RANLIB=gcc-ranlib
           cd /build/liburing
           ./configure --prefix=/opt/incus
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/liburing/
           DESTDIR=/build/target/liburing make install
@@ -283,7 +294,7 @@ jobs:
           cd /build/raft
           autoreconf -i
           ./configure --prefix=/opt/incus
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/raft/
           DESTDIR=/build/target/raft/ make install
@@ -304,7 +315,7 @@ jobs:
 
           autoreconf -i
           ./configure --prefix=/opt/incus
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/cowsql/
           DESTDIR=/build/target/cowsql/ make install
@@ -379,77 +390,82 @@ jobs:
 
           cd /build/incus
 
-          git cherry-pick 10c2c1f460b8fbf82d31b295cf775612aa690a2e  # incus/server/instance/drivers/qemu: dont interpret ErrNonReusuableSucceeded as error
-          git cherry-pick 2fd03fac717783fd57ad81f0a14a723b96ef20ff  # incus/server/instance/drivers/lxc: dont interpret ErrNonReusuableSucceeded as error
-          git cherry-pick 8f8d84d8190b100571d6efb666451f9770e64d5e  # doc: Move warning for macOS in howto/insntances_create
-          git cherry-pick e8d26c575383e456097862e426df3d27dbcfcc79  # incusd/instance/lxc: Use IsRootDiskDevice in diskState
-          git cherry-pick a217ce2ce2068f29db6a91202ac2f991cf51edee  # incusd/instance/qemu: Report disk usage for all disk devices in state
-          git cherry-pick 4acef387fff774c1ea8403bb7ce920c673a0c9de  # incusd/instance: Resolve the custom volume project in diskState
-          git cherry-pick fdbad000e78bd98e1a77f4fad420302c0b4feacc  # shared/tls: Add PublicKeyChain
-          git cherry-pick daf9728b6331547f75d78631a4bef448bb86dc41  # shared/tls: Add GetRemoteCertificates
-          git cherry-pick 183c1d195920130e2063e0d318bec626c9b7ae9b  # incusd/endpoints: Return the full certificate chain from NetworkPublicKey
-          git cherry-pick 870a2963d9a138a22a3f13077a3e1a43b4913dda  # incusd: Sync the full cluster certificate chain from the leader
-          git cherry-pick 8bb2ecac4bd018e211f1ccf10397c3ddd8ee5713  # tests: Cover joining with a cluster certificate chain
-          git cherry-pick 6801fbf9e98c149385ca91dc84484425df31b3c1  # incusd/mirror: Never follow symlinks in mirrored directories
-          git cherry-pick 175121c0d584d6d63dc2cf66ebbab7a6f70a9ba9  # incusd/instance/qemu: Seed NVRAM from the real file rather than its symlink
-          git cherry-pick 1b2d7aa8216749632f9b8a5f3d20d3ca402ed241  # incusd/device/tpm: Refuse a state path that isn't a real directory
-          git cherry-pick 3ee36eda4afd0f9940bae1c1ca7c6774ca887a15  # incus/image: Sort properties in image info
-          git cherry-pick 2cb2549252b0551561f6e7e7afdb153947a3d290  # incusd/endpoints: Don't block the local accept loop on the STARTTLS peek
-          git cherry-pick f0a17a33bb28075848faa917591501a5a351a38d  # incusd/networks: Fix start priority of networks with a parent
-          git cherry-pick 29a4e8667b087fdddf46c827b2182d2c0de9ae76  # tests: Make the sparse file test independent of the page size
-          git cherry-pick 659042d438b06cee4596e846835776176b178e66  # incusd/instance/qemu: Allow live-update of security.tags
-          git cherry-pick 9f256ccf76e5a30190cb423992ebfe1821d00ac1  # incus: Allow building for NetBSD
-          git cherry-pick 009cd6ec2663a8e2c58b8ade2205db8a1c945e56  # Revert "goreleaser: Temporarily disable netbsd artifacts"
-          git cherry-pick 20e62adfc8d670d180c298b517151159fcacc50e  # Update gomod
-          git cherry-pick 75ff144dc9a095944a33688e053ecc31b4fff740  # incusd: Allow the server certificate update over HTTPS
-          git cherry-pick 81e2ded4f88d7b29c0edf50481a89f1623535853  # incus/admin: Support remotes in update-certificate
-          git cherry-pick a1c7dee7ee130744fd50be7b0ed39e03736bdb73  # incusd/instance: Fix nil dereference in canMigrate on device load error
-          git cherry-pick bf964be1544b671cde63dc572c731b4f0332d8b4  # incusd/instance: Only let a migration inherit its own lock when stopping
-          git cherry-pick cb6efa761abb7e61bb9714c2b86785c4e023a701  # incusd/instance: Wait for state changes before migrating
-          git cherry-pick 28ffc69fb721c1729967a2f6712f232c22553eef  # incusd/instance: Don't fail a move on source cleanup errors
-          git cherry-pick aa7b47e27649ab147ce6a163f261b3db8809bd06  # incusd/instance/qmp: Add agent TEMPLATED status
-          git cherry-pick a1fb42b459385975149940f452738e022cd19769  # incusd/instance/qemu: Clear template state when the agent reports applying them
-          git cherry-pick 4e799f72871b11c6c168659930b866476a8b5121  # incus-agent: Report template application before rebooting for cloud-init
-          git cherry-pick b0e3e24dcf0c849f54bfecec2b8ac404168ec4d4  # tests: Add VM cloud-init test
-          git cherry-pick c1cd34cc68a5d1e98a96f8ebefa120839bcf0660  # github: Run the VM cloud-init test
-          git cherry-pick aca18709cf49ce701937be6b8b12bed31b2b678e  # incusd/network/ovn: Allow changing a networks parent
-          git cherry-pick dfb46a74a11d1a0718ec1f4cd4a7c3e9943ef5ad  # doc: Update OVN network parent documentation
-          git cherry-pick 86da81c205a7a336ff9daa46c3bbe1684b11cbd4  # tests: Add OVN network reparenting tests
-          git cherry-pick be068b08705554ccc758f3f6e1acc670d9230de9  # shared/logger: Add WarnOnErrorExcept to the Logger interface
-          git cherry-pick 424c368c9df435d68a093ae94f1460e1c8b99235  # shared/resources: Fix double close of ethtool socket
-          git cherry-pick 3d95f35e2d2723e8bbbb20d468a816da19e2257c  # shared/resources: Base memory usage on MemAvailable
-          git cherry-pick 4d84a749fe9c4b362a1992c5dfdb6db7bc9df8a9  # client: Drop the context-free VM agent connection debug line
-          git cherry-pick 83a756379d973046d8c477c3358ced411f769a76  # incusd/cluster: Fix swapped CPU and memory usage in rebalance scoring
-          git cherry-pick 5e1a776838f8a80d86c1da6d1508da7b4b4797cf  # incusd/cluster: Use the instance's project when rebalancing
-          git cherry-pick 733e81c782636a9dcfc48f46ca254e294e47a4c9  # incusd/instance: Log placement scriptlet refusals
-          git cherry-pick 7cabd630269ce4398ccfc30555a881751aab37d3  # incusd/instance: Only warn on unexpected metrics and state query errors
-          git cherry-pick 68ea53ac37042813a16efdbfbb3a951b0858470a  # incusd/instance: Remove devices before deleting the instance volume
-          git cherry-pick f7ddb60fc4f720722bb098057a264413ca96de6a  # incusd/instance: Fix error messages altered by variable rename
-          git cherry-pick 8c4b20d382e350de767068da25c14037007a5065  # incusd/device/nic: Only warn on MTU lookup failures for existing host interfaces
-          git cherry-pick 9df03594c580599af581a28dcd844739a6548daa  # incusd/storage: Don't fail UnmountInstance on a volume still in use
-          git cherry-pick 0c75111f151a9993cf624575db7c51d212e94400  # incusd/storage/zfs: Tolerate deleted datasets when filling the property cache
-          git cherry-pick 3c92fe9c10d2d38018d9b1db46af97d411c8c54a  # incusd/images: Don't ignore move errors when importing a split image from a member
-          git cherry-pick 7e8e810e9973e6cdba7829beed284d59e1b9bf56  # incusd/images: Keep expired cached image files still used by other projects
-          git cherry-pick 0507ea02e59cda53de73747929b283c4b1b46718  # incusd/images: Return not found when exporting an image whose file is missing
-          git cherry-pick 1a83c0637db95dfa655049b10a2bb4265060e635  # incusd/auth/openfga: Tolerate tuple conflicts during resource sync
-          git cherry-pick 253f39a7b625b0e76e65f375a5a6a6203af9a06f  # incusd/auth/openfga: Read tuples page by page when syncing resources
-          git cherry-pick 8f5150e66770bbc7e876a48e38a23432508f0160  # doc/clustering: Document member count, latency and clock requirements
-          git cherry-pick 14923203246d2a7659c32927802a5f38437d957c  # incusd/network/ovn: Restrict the IC southbound monitor to used tables
-          git cherry-pick 6f410f7ed4369180ee1aff6c0ba0e8e8435494cf  # incusd/storage/zfs: Only list snapshots when a snapshot is queried
-          git cherry-pick dc6983f4a0255fecf0dbbce05525f23912c7f72b  # incusd/storage/zfs: Wait for snapshot device removal on unmount
-          git cherry-pick 2e77303e4893f1323b2e17d06b3d2891c5c95eeb  # incusd/apparmor: Don't allow reading everything when LD_LIBRARY_PATH is unset
-          git cherry-pick 51357bbf44d62a3a1da7c783b8c9f936d2626ec0  # incusd/network: Fix OVN network creation retries
-          git cherry-pick d6af65474ec6a3c7a4d279d0f78036626073e91a  # tests: Cover clustered OVN network creation retries
-          git cherry-pick c311b7a7f5fe2fa493dcde411f6bc4cd5d975cd1  # github: Run the OVN cluster retry test
-          git cherry-pick 1b27ad53adddbecb47f2a72696c2a1e5b62ca737  # internal/server/instance/driver/qemu: use hashed block node name when resizing
-          git cherry-pick 76b37df3e17c1e8f4af96c2a9d4921b228544cfb  # shared/subprocess: Write pid files atomically
-          git cherry-pick 5472f997327b4c991a821f37ebaf004bc32e6850  # shared/subprocess: Only signal the process that was recorded
-          git cherry-pick 80774bd96b31737acf35b1bf6d1bb8592ba33a67  # incusd/dnsmasq: Remove pid file after killing dnsmasq
-          git cherry-pick 4928a7876638137df0714ea0e7ebba69673e4019  # incusd/network: Use network config to detect dnsmasq use
-          git cherry-pick 8904b9f479fe5459d536a392f7ced209dad528d8  # tests: Check stale dnsmasq.pid never signals other processes
-          git cherry-pick 4d8ada58924e08a890041942c2786a4d5c4b7f82  # incusd/instance: Add HashName
-          git cherry-pick dc1529d1cbd1c51f036bc6d924889a26233fdb68  # incusd/instance/qemu: Use instance.HashName
-          git cherry-pick 893028ae3f2e38d176e1102bbe641ce89433d8c0  # incus-agent: Hash long virtiofs mount tags on hotplug
+          git cherry-pick e87de0c24f48592f0fa534b26d12180bc9d3736c  # test: Fix NVRAM check
+          git cherry-pick de89fc4068b3afb51a40c0f06600e37a395627ed  # internal/server/device: Ignore already closed DHCP sockets
+          git cherry-pick 43f1d9bac495f56ecb22be43e0761b472ef04476  # cmd/incusd: Ignore missing temporary image files
+          git cherry-pick 8dd8fd55977d5f373487212337cf58076879c346  # doc/rest-api: Refresh swagger YAML
+          git cherry-pick d34562e45efe62c8c31523f7c82a508d13f68219  # client: Only probe Unix sockets when several exist
+          git cherry-pick ef9a103401c19d26a3def929c310eadfa376bfea  # incus-user: Serialize user setup across connections
+          git cherry-pick 9e38b4e24254d8c853838ec86d0df7b1ee022dbc  # incusd/instance/qemu: Always report host TPM state
+          git cherry-pick 1486ac847898376efe5d0113633c823380fdd010  # incusd/storage: Fix volume used_by across projects
+          git cherry-pick 02125a285b8ad5bd3297c6de7d666169e62523a4  # tests: Check volume used_by across projects
+          git cherry-pick 06686a6a5ccff31945d8f2dd30edd58e56f52596  # incusd/instance/lxc: Keep the instance idmap across snapshots
+          git cherry-pick a4158368f5d1964e373229181b6be29366c92604  # incusd/project: Replace snapshot idmap allocation keys on restore
+          git cherry-pick c491063da74bb783a7dc958e1c56530dc107be4d  # tests: Check isolated snapshot restore in restricted projects
+          git cherry-pick a1edc8d1995e1b12ef3cf56f6ee7f3f012b7f040  # Update gomod
+          git cherry-pick 6f34ec1f07d2bc94f38cc7af9316fe8127f5c36f  # incusd/project: Merge existing config on PATCH
+          git cherry-pick 2487aacfee21834819e5caa46676e6f2e262c93c  # tests: Check project config PATCH
+          git cherry-pick f1b8e20d1b8ffec8066390cd32552bc46fbcd970  # incusd/instance/qmp: Skip error message when already disconnected
+          git cherry-pick 6ec0c834bd4a24d5dde9a0e8662e42d7d52dc1fc  # incusd/storage/linstor: Handle leftover resource definitions on create and delete
+          git cherry-pick 8bdbd128878c4c5615cb8ac5459179576e00b55e  # incus-agent: Catch the clock up with the host's time when it connects
+          git cherry-pick b2368edb5eb0aa1f06c02c4534c487b5459f6a7d  # incusd/instance/qemu: Send the host time to the agent and reconnect after a stateful start
+          git cherry-pick db7ea7d6d840cfeefce792abeedb4e078c924a47  # incusd/storage_volumes: Rename and move dependent volumes before updating users
+          git cherry-pick f4ab362f223bd5f6318af615f17bdf2eee897b48  # tests: Rename and move dependent volumes
+          git cherry-pick c0096076949bff06f747707190fb75544d7377d0  # incusd: Read the USB serial from sysfs on hotplug
+          git cherry-pick 8e12d6d2c184c15c44f6d98013fb678f43fafcf8  # incusd/device/usb: Match serial devices on removal by bus and device number
+          git cherry-pick 8d8cf9c38648afffeecf8aa7046f69faee728a05  # incus/exec: Don't read a terminal from a background process group
+          git cherry-pick 8a1e95150297e36c8c30aedd8b8af5aa1ccaa1b2  # incusd/mirror: Add a way to drop mirrors without a final sync
+          git cherry-pick 01a5439a35e7d842e946678aa129b13d2396afdf  # internal/linux: Add a helper listing the writers on a mount
+          git cherry-pick 7612887ec222162c03459208fa71a9156a517911  # incusd/migration: Add dirtyBitmaps to the migration header
+          git cherry-pick 48f81f2ad804d69509665c1f44797b3737008846  # incusd/migration: Update protobuf
+          git cherry-pick 00a45fe91491a8d165fa9c2ceacf2d481a03ba3d  # incusd/storage/drivers: Fall back to a full e2fsck when preen mode gives up
+          git cherry-pick 42cb585e322a8fa41c95990e01595ecaad51346d  # incusd/instance/qemu: Run the metadata images from a local copy
+          git cherry-pick 7680ee660051d72ed0e769bd9563d3af50f84539  # incusd/instance/qemu: Drop the local state copies once a move is committed
+          git cherry-pick 8657d26b4084560d355b76b480e27cc87ad45724  # incusd/instance/qemu: Refuse live moves when the config volume stays writable
+          git cherry-pick a49be428eadcfaf47adfb26c5ffa3cb43d6b4c88  # incusd/instance/qemu: Migrate persistent bitmaps with the VM state
+          git cherry-pick 65da1e4129b82381c195396e498e257c845127a0  # incus-simplestreams: Avoid a double slash in the default alias
+          git cherry-pick 210b6c932a8c9270af4c7852784495bbd2e10e3a  # Update gomod
+          git cherry-pick 597fc7ae862d60a2ed3f414f10dd11e2112fd9f2  # incusd/storage: Clean up after a failed instance creation
+          git cherry-pick 1fec5721f472f9e0101b4ae65a43af4d98259d68  # incusd/instance/lxc: Wait for the stop hook of an exited instance
+          git cherry-pick 4dcaaab80c68c848cdb8759bf4c6257f0522b84b  # incusd/db/cluster: Add bulk instance profile loader
+          git cherry-pick 69e8df4a7f0a328b16b49476aaae0a558df66d33  # incusd/db/cluster: Accept prefetched instance config and profiles
+          git cherry-pick ca10430366933b03f272fca6e2f2b5e49f0848ce  # incusd/scriptlet: Load instances in bulk
+          git cherry-pick a7dac83d1694ec81b6fb23c24df9ed79268c12cb  # incusd/project: Load instances in bulk for limit checks
+          git cherry-pick 39023763f7a9691eb1bee9db442bf4108b9da7d8  # incusd/cluster: Give the placement scriptlet ten seconds
+          git cherry-pick de47821ea8ebb2c3e1cbd79ad3ea90cefeb6fa4e  # tests: Check instance listing in placement scriptlet
+          git cherry-pick 4b522df5a735761a10e7457d6c240bb0ccef934d  # incusd: Run container hooks without the database
+          git cherry-pick 4cd8d6e5af8e94a596f6eb9bab188e37e1bd0b24  # incusd: Let empty import overrides unset config and device keys
+          git cherry-pick 10aea863304711a2c344ca54d5f2dd908fd16eae  # tests: Check config and device overrides on import
+          git cherry-pick e11b0b075202a2d757d35105c5d49851160cc0bc  # incus/import: Add examples for overriding config and devices
+          git cherry-pick 966d2792d9453851b3fd9ba2393dcd2ba74d5271  # doc: Describe import overrides for instances exported from other servers
+          git cherry-pick 313af7713d9febca9ca9ca5b4df3fc283506fd2e  # incus-agent: Fix the clock step on 32-bit targets
+          git cherry-pick 15ce09940427b334729087324afbb84165444f37  # doc: Update release branch references
+          git cherry-pick bd62cb7d631b49b6da7bd22fbae63eef4fa39cdc  # incusd/storage/lvm: Move the sanlock global lock recovery to a helper
+          git cherry-pick 2fcd9c188e5bd3130767a9d076d5b240ee69e5f2  # incusd/storage/lvm: Clean up stale sanlock lease volumes on pool delete
+          git cherry-pick c75facf4ea7e0e367dc69d098f738e8fe4b086e5  # incusd/storage/lvm: Use PathNameEncode for volume name escaping
+          git cherry-pick 1ff2d215560958aa5529a43001aaba4999794621  # client: Fix data race on skipEvents
+          git cherry-pick 32ffc154a4145656e74f88d66730e742e03ea24b  # incusd/apparmor: Allow QEMU access to the metadata images
+          git cherry-pick f9eff01a905d6a8b1e77e05808903d06b04ec3ea  # incusd/device/nic_routed: Add the host routes once a VM runs and replace existing ones
+          git cherry-pick e3bd565459e0ed9a6790802b73a181d2162f1e37  # incusd/instance/qemu: Restore the volatile config when an incoming move fails
+          git cherry-pick a19db1384097311a10539e5c82a3b0d7f3c8d386  # incusd/instance/qemu: Resync the agent clock whenever the guest is resumed
+          git cherry-pick d61ee0638c8c7723f84479e49e0e33ef5713167a  # incusd/storage/linstor: Don't attach a volume just to check its size
+          git cherry-pick fdbe26396a2ac0b35624e56d028b77e0c500f43d  # incusd/storage/linstor: Grow the volume as part of the clone
+          git cherry-pick 1ce4fa50bf748e257dc6d4bfc8253ed77a30064d  # incusd/storage: Mount the instance once when creating it from an image
+          git cherry-pick c65b7f0954153274e722e60c94917aa3f3a095e5  # incusd/storage/drivers: Expose extended L2 flag in qcow2 info
+          git cherry-pick 59c89548c9a750785ddde5f1cd6ba118b335b66a  # incusd/instance/qmp: Add block node file query
+          git cherry-pick d37221cca975a4d3f3654e31adb3a58c2abf8a15  # incusd/instance/qemu: Size the qcow2 L2 cache from the file size and memory limit
+          git cherry-pick 41050e2ed806e5eb96c3c7aa5412ea0da0911c37  # incusd/cluster: Heal members that died during an evacuation
+          git cherry-pick abc0c0a2013d62adc4450e7e7b9bffc9916b261b  # tests: Cover healing of a member left evacuating
+          git cherry-pick fa054468f5063b1680e4e6b5d8702eeaa0dddc53  # incusd/db: Don't report all members as offline on leader loss
+          git cherry-pick 33f82b856ad8603cc8664639f3638cfc81a0eb7b  # Update gomod
+          git cherry-pick ff7514dadbd77e4a3e7f103abce903c050c292c3  # shared/subprocess: Flush pid files before renaming them
+          git cherry-pick 53d8b313a35165626ac532f32b24c4ed139f3bdf  # incusd/dnsmasq: Treat unusable pid files as stale
+          git cherry-pick 1ae8b9e5fac6a7ce2e2cc63fdbf93902fe69782b  # tests: Cover empty dnsmasq pid files
+          git cherry-pick 507dd2998820c22c0c8e07998bb485bb0f1f4084  # shared/api: Add missing JSON and YAML tags
+          git cherry-pick 5333e79ab5409350dfb03be73ae762e8ee7681f0  # doc/rest-api: Refresh swagger YAML
+          git cherry-pick 92fc8d8d497e2bd3b83e0d8ca9c2952f1d8c216e  # incusd/instance: Check transaction error in instancePost
+          git cherry-pick 22d17e0a1eff5e2de1e274e0a1ea6f31fd10ecfb  # incusd/operations: Let the run function finish a cancelled operation
+          git cherry-pick 76e041042fa7bbc21fa9e062767c429b95e1824b  # incusd/instance/qemu: Allow live moves of VMs started by older versions
 
           go build -o "/opt/incus/bin/fuidshift" github.com/lxc/incus/v7/cmd/fuidshift
           go build -o "/opt/incus/bin/incus" github.com/lxc/incus/v7/cmd/incus
@@ -460,27 +476,37 @@ jobs:
           go build -o "/opt/incus/bin/incusd" -tags=libsqlite3 github.com/lxc/incus/v7/cmd/incusd
           go build -o "/opt/incus/bin/lxc-to-incus" github.com/lxc/incus/v7/cmd/lxc-to-incus
 
+          PIDS=""
+          bg() {
+              "$@" &
+              PIDS="${PIDS} $!"
+          }
+
           mkdir -p /opt/incus/agent
           if [ "$(uname -m)" = "x86_64" ]; then
-              GOARCH=amd64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=amd64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=386 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=amd64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=386 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 GOOS=netbsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.netbsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=amd64 GOOS=netbsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.netbsd.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=386 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=amd64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=386 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
 
-              GOARCH=amd64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=386 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=amd64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.x86_64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=386 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.i686" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
           elif [ "$(uname -m)" = "aarch64" ]; then
-              GOARCH=arm64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=arm64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=arm64 GOOS=netbsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.netbsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=arm64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
-              GOARCH=arm64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=arm64 GOOS=darwin CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.macos.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=arm64 GOOS=freebsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.freebsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=arm64 GOOS=netbsd CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.netbsd.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=arm64 CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.linux.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
+              bg env GOARCH=arm64 GOOS=windows CGO_ENABLED=0 go build -o "/opt/incus/agent/incus-agent.windows.aarch64" -tags=agent,netgo github.com/lxc/incus/v7/cmd/incus-agent
           fi
+
+          for pid in ${PIDS}; do
+              wait "${pid}"
+          done
 
           make build-mo
           mkdir -p /opt/incus/share/locale
@@ -529,7 +555,7 @@ jobs:
 
           cd /build/criu
 
-          make WERROR=0
+          make -j"$(nproc)" WERROR=0
           cp criu/criu /opt/incus/bin/
 
       - name: Build libnvidia-container
@@ -539,7 +565,7 @@ jobs:
           cd /build/libnvidia-container
           patch -p1 < "${REPO}/patches/nvidia-0001-Fix-for-22.04-build.patch"
           patch -p1 < "${REPO}/patches/nvidia-0002-pre-load-libdl.patch"
-          make prefix=/
+          make -j"$(nproc)" prefix=/
 
           mkdir /build/target/libnvidia-container
           DESTDIR=/build/target/libnvidia-container make install prefix=/
@@ -569,7 +595,7 @@ jobs:
           echo "CONFIG_FLOPPY=n" >> .config
           echo "CONFIG_FLASH_FLOPPY=n" >> .config
           make oldnoconfig V=1
-          make V=1 PYTHON=python3
+          make -j"$(nproc)" V=1 PYTHON=python3
 
           mkdir -p /opt/incus/share/qemu/
           cp out/bios.bin /opt/incus/share/qemu/seabios.bin
@@ -581,7 +607,7 @@ jobs:
           cd /build/nasm
           patch -p1 < "${REPO}/patches/nasm-0000-disable-manpages.patch"
           ./configure --prefix=/opt/incus
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/nasm/
           DESTDIR=/build/target/nasm make install
@@ -599,6 +625,7 @@ jobs:
           patch -p1 < "${REPO}/patches/edk2-0005-Revert-ArmVirtPkg-make-EFI_LOADER_DATA-non-executabl.patch"
           patch -p1 < "${REPO}/patches/edk2-0006-disable-EFI-memory-attributes-protocol.patch"
           patch -p1 < "${REPO}/patches/edk2-0007-OvmfPkg-X64-add-opt-org-tianocore-UninstallMemAttrProtocol-support.patch"
+          patch -p1 < "${REPO}/patches/edk2-0008-Disable-virtio-keyboard.patch"
           patch -p1 < "${REPO}/patches/edk2-9999-disable-UEFI-shell-under-SecureBoot.patch"
 
           sed -i "s#02/02/2022#$(date +%m/%d/%Y)#g" OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.c
@@ -692,7 +719,7 @@ jobs:
 
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-tpm2 --with-openssl
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/libtpms/
           DESTDIR=/build/target/libtpms make install
@@ -708,7 +735,7 @@ jobs:
           cd /build/swtpm
           ./autogen.sh
           ./configure --prefix=/opt/incus --with-gnutls --with-seccomp --with-openssl --without-cuse
-          make
+          make -j"$(nproc)"
 
           mkdir -p /build/target/swtpm/
           DESTDIR=/build/target/swtpm make install
@@ -781,11 +808,11 @@ jobs:
           export AR=gcc-ar
           export RANLIB=gcc-ranlib
           cd /build/qemu
+          patch -p1 < "${REPO}/patches/qemu-0001-fdmon-io_uring-avoid-idle-event-loop-being-accounted.patch"
           patch -p1 < "${REPO}/patches/qemu-0002-set-scheduler-option.patch"
           patch -p1 < "${REPO}/patches/qemu-0003-malloc.patch"
           patch -p1 < "${REPO}/patches/qemu-0004-hardening-change.patch"
 
-          
           sed -i "s/^unset target_list$/target_list=\"$(uname -m)-softmmu\"/" configure
 
           sed -i "/subdir('tests')/d" meson.build
@@ -841,7 +868,7 @@ jobs:
                   --x86-version=2 \
                   -Dmembarrier=enabled \
                   -Doptimization=3
-          make
+          make -j"$(nproc)"
 
           mkdir /build/target/qemu/
           DESTDIR=/build/target/qemu/ make install
